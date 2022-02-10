@@ -64,8 +64,8 @@ output_path = open(sys.argv[2],"w")  # create (override) an output file using th
 ################################ Test
 
 
-# input_path = "C:/Users/Gael/Documents/Git_projects/largest_homopolymer/dataset/integrases.fasta"
-# output_path = "C:/Users/Gael/Documents/Git_projects/largest_homopolymer/res.tsv"
+# input_path = "C:/Users/Gael/Documents/Git_projects/homopolymer/dataset/integrases.fasta"
+# output_path = "C:/Users/Gael/Documents/Git_projects/homopolymer/res.tsv"
 
 
 ################################ End Test
@@ -104,11 +104,14 @@ def homopoly_detect(sequence):
     count = 0
     prev_nuc = None
     ini_pos = -1
+    homopoly_nb = 0 # nb of homopolymers in the seq
 
     for pos, nuc in enumerate(sequence): # https://docs.python.org/3/library/functions.html#enumerate # warning, first nuc is position 0
         if nuc == prev_nuc:
             count += 1
         else:
+            homopoly_nb += 1
+
             if homopoly_max < count & count >= 2:
                 nuc_max = prev_nuc
                 pos_max = ini_pos
@@ -128,7 +131,7 @@ def homopoly_detect(sequence):
 
         prev_nuc = nuc
 
-    return nuc_max_list, [str(x) for x in pos_max_list], [str(x) for x in homopoly_max_list] #convert all into strings
+    return nuc_max_list, pos_max_list, homopoly_max_list, homopoly_nb
 
 
 ################################ End Functions
@@ -190,30 +193,46 @@ with open(input_path, "r") as fasta:
 ################ Ignition
 
 name = []
+seq_length = []
 nucleotid = []
-position = []
+starting_position = [] # first base position of the homopolymer
+relative_position = [] # relative position of the homopolymer in the sequence using  y = (x - 1) / (size - length) with x the first position of the homopolymer, size the sequence length and length the homopolymer length (0 <= y <= 1)
 size = []
+nb = [] # homopolymer nb in seq (considering polymers starting at length 1)
+mean_size = [] # average size of homopolymers of size between 1 and seq_length. It correspond finally to the nb of homopolymers / sequence length
+
 
 with open(input_path, 'r') as fasta: # open the fasta file, 'r' means read, advantage of with command: cleanly close a file when the block ends (keep memory and avoid using close at the end). Check if and avoid error if 'w' writing option is selected) ?
     for line in fasta:
         if line.startswith(">"):
             name.append(line.strip()) # strip() added to remove the \n added at each end on "line" when appended in name
         else:
-            nuc_max_list, pos_max_list, homopoly_max_list = homopoly_detect(line)
+            length = len(line.strip())
+            nuc_max_list, pos_max_list, homopoly_max_list, homopoly_nb = homopoly_detect(line)
+            homopoly_rel_pos_list = [(x - 1) / (length - homopoly_max_list[0]) for x in pos_max_list]
+            pos_max_list = [str(x) for x in pos_max_list] # to convert list of integers into strings
+            homopoly_max_list = [str(x) for x in homopoly_max_list] # to convert list of integers into strings
+            homopoly_rel_pos_list = [str(x) for x in homopoly_rel_pos_list] # to convert list of integers into strings
             if len(nuc_max_list) > 1:
                 nuc_max_list = ";".join(nuc_max_list)
                 pos_max_list = ";".join(pos_max_list)
                 homopoly_max_list = ";".join(homopoly_max_list)
+                homopoly_rel_pos_list = ";".join(homopoly_rel_pos_list)
             else:
                 nuc_max_list = "".join(nuc_max_list)
                 pos_max_list = "".join(pos_max_list)
                 homopoly_max_list = "".join(homopoly_max_list)
+                homopoly_rel_pos_list = "".join(homopoly_rel_pos_list)
             nucleotid.append(nuc_max_list)
-            position.append(pos_max_list)
+            seq_length.append(length)
+            starting_position.append(pos_max_list)
+            relative_position.append(homopoly_rel_pos_list)
             size.append(homopoly_max_list)
+            nb.append(homopoly_nb)
+            mean_size.append(homopoly_nb / length)
 
 
-df = pd.DataFrame(list(zip(name, nucleotid, position, size)), columns =['name', 'nucleotide', 'position', 'size'])
+df = pd.DataFrame(list(zip(name, seq_length, nucleotid, starting_position, relative_position, size, nb, mean_size)), columns =['name', 'seq_length', 'nucleotide', 'starting_position', 'relative_position', 'max_size', "nb", 'mean_size'])
 df.to_csv(path_or_buf = output_path, sep = "\t", index = False)
 
 

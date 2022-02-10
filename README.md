@@ -67,9 +67,13 @@ A table with the following columns<br /><br />
 | Column | Description |
 | --- | --- |
 | **name** | name of the sequence |
+| **seq_length** | nb of bases in the sequence |
 | **nucleotide** | nucleotide of the homopolymer |
-| **position** | position of the first nucleotide of the homopolymer in the sequence analyzed |
-| **size** | number of times the nucleotide is repeated in the homopolymer (homopolymer length)|
+| **starting_position** | position of the first nucleotide of the homopolymer of max size |
+| **relative_position** | relative position of the starting_position value when the first base of the sequence is 0 and the last one is 1. The formula used is y = (starting_position - 1) / (seq_length - max_size) to get 0 <= y <= 1) |
+| **max_size** | number of times the nucleotide is repeated in the homopolymer (homopolymer length) |
+| **nb** | number homopolymers in the sequence (including homopolyers of size 1) |
+| **mean_size** | average homopolymer size in the sequence (including homopolyers of size 1) |
 
 If several longest homopolymers in a sequence, results are semi-colon separated in each cell.
 
@@ -112,8 +116,12 @@ Gitlab developers
 <br /><br />
 ## WHAT'S NEW IN
 
+### v2.0
 
-### v1.0.0
+1) New features included in the result table
+
+
+### v1.0
 
 1) Everything
 
