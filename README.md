@@ -26,7 +26,7 @@
 <br /><br />
 ## AIM
 
-Detect the largest homopolymer per sequence in a batch of DNA sequences
+Return homopolymers info, including the largest homopolymer, per DNA sequence in a batch of DNA sequences
 
 
 <br /><br />
@@ -34,7 +34,7 @@ Detect the largest homopolymer per sequence in a batch of DNA sequences
 
 | File or folder | Description |
 | --- | --- |
-| **largest_homopolymer.py** | file that can be executed using a CLI (command line interface) |
+| **homopolymer.py** | file that can be executed using a CLI (command line interface) |
 | **dataset** | Folder containing some datasets than can be used as examples |
 | **example_of_result** | Folder containing examples of result obtained with the dataset |
 
@@ -45,7 +45,7 @@ Detect the largest homopolymer per sequence in a batch of DNA sequences
 ### local terminal
 
 
-`  python3 largest_homopolymer.py ./dataset/integrases.fasta ./result.tsv  `
+`  python3 homopolymer.py ./dataset/integrases.fasta ./result.tsv  `
 
 arg0: .py script<br />
 arg1: fasta file input<br />
@@ -81,7 +81,7 @@ If several longest homopolymers in a sequence, results are semi-colon separated 
 ## VERSIONS
 
 
-The different releases are tagged [here](https://gitlab.pasteur.fr/gmillot/largest_homopolymer/-/tags)
+The different releases are tagged [here](https://gitlab.pasteur.fr/gmillot/homopolymer/-/tags)
 
 <br /><br />
 ## LICENCE
