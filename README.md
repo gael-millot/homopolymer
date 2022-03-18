@@ -26,7 +26,7 @@
 <br /><br />
 ## AIM
 
-Return homopolymers info, including the largest homopolymer, per DNA sequence in a batch of DNA sequences
+Return homopolymers info per DNA sequence in a batch of DNA sequences, as well as statistics about homopolymers for this batch.
 
 
 <br /><br />
@@ -34,7 +34,8 @@ Return homopolymers info, including the largest homopolymer, per DNA sequence in
 
 | File or folder | Description |
 | --- | --- |
-| **homopolymer.py** | file that can be executed using a CLI (command line interface) |
+| **main.nf** | file that can be executed using a CLI (command line interface)
+| **nextflow.config** | parameter settings for the main.nf file |
 | **dataset** | Folder containing some datasets than can be used as examples |
 | **example_of_result** | Folder containing examples of result obtained with the dataset |
 
@@ -42,28 +43,125 @@ Return homopolymers info, including the largest homopolymer, per DNA sequence in
 <br /><br />
 ## HOW TO RUN
 
-### local terminal
+See Protocol 136 (ask me).
 
 
-`  python3 homopolymer.py ./dataset/integrases.fasta ./result.tsv  `
+### If error message
 
-arg0: .py script<br />
-arg1: fasta file input<br />
-arg2: tsv file output<br />
-<br /><br />
+If an error message appears, like:
+```
+Unknown error accessing project `gmillot/14985_loot` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/14985_loot
+```
+Purge using:
+```
+rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
+```
+
+
+### Using the committed version on gitlab:
+
+1) Create the scm file:
+
+```bash
+providers {
+    pasteur {
+        server = 'https://gitlab.pasteur.fr'
+        platform = 'gitlab'
+    }
+}
+```
+
+And save it as 'scm' in the .nextflow folder. For instance in:
+\\wsl$\Ubuntu-20.04\home\gael\.nextflow
+
+Warning: ssh key must be set for gitlab, to be able to use this procedure (see protocol 44).
+
+
+2) Mount a server if required:
+
+```bash
+DRIVE="C"
+sudo mkdir /mnt/share
+sudo mount -t drvfs $DRIVE: /mnt/share
+```
+
+Warning: if no mounting, it is possible that nextflow does nothing, or displays a message like
+```
+Launching `main.nf` [loving_morse] - revision: d5aabe528b
+/mnt/share/Users
+```
+
+
+3) Then run the following command from here \\wsl$\Ubuntu-20.04\home\gael:
+
+```bash
+nextflow run -hub pasteur gmillot/08002_bourgeron -r v1.0.0
+```
+
+If an error message appears, like:
+```
+WARN: Cannot read project manifest -- Cause: Remote resource not found: https://gitlab.pasteur.fr/api/v4/projects/gmillot%2F08002_bourgeron
+```
+Make the distant repo public
+
+If an error message appears, like:
+
+```
+permission denied
+```
+
+See chmod in protocol 44.
+
 
 ### Using a cluster
 
 Start with:
 
-`  alias python3='module load Python/3.6.0 ; python3'  `
+```bash
+EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/14985_loot" # where the bin folder of the main.nf script is located
+export CONF_BEFORE=/opt/gensoft/exe # on maestro
 
-Then run as for the local terminal
+export JAVA_CONF=java/13.0.2
+export JAVA_CONF_AFTER=bin/java # on maestro
+export SINGU_CONF=singularity/3.8.3
+export SINGU_CONF_AFTER=bin/singularity # on maestro
+export GIT_CONF=git/2.25.0
+export GIT_CONF_AFTER=bin/git # on maestro
+export GRAPHVIZ_CONF=graphviz/2.42.3
+export GRAPHVIZ_CONF_AFTER=bin/graphviz # on maestro
 
-<br /><br />
+MODULES="${CONF_BEFORE}/${JAVA_CONF}/${JAVA_CONF_AFTER},${CONF_BEFORE}/${SINGU_CONF}/${SINGU_CONF_AFTER},${CONF_BEFORE}/${GIT_CONF}/${GIT_CONF_AFTER},${CONF_BEFORE}/${GRAPHVIZ_CONF}/${GRAPHVIZ_CONF_AFTER}"
+# cd ${EXEC_PATH} # not required when using the gitlab repo to run the script
+# chmod 755 ${EXEC_PATH}/bin/*.* # not required when using the gitlab repo to run the script
+module load ${JAVA_CONF} ${SINGU_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
+
+```
+
+Then run:
+
+```bash
+# distant main.nf file
+HOME="$ZEUSHOME/14985_loot/" ; nextflow run --modules ${MODULES} -hub pasteur gmillot/14985_loot -r v7.10.0 -c $HOME/nextflow.config ; HOME="/pasteur/appa/homes/gmillot/"
+
+# local main.nf file ($HOME changed to allow the creation of .nextflow into /$ZEUSHOME/14985_loot/. See NFX_HOME in the nextflow soft script)
+HOME="$ZEUSHOME/14985_loot/" ; nextflow run --modules ${MODULES} main.nf ; HOME="/pasteur/appa/homes/gmillot/"
+```
+
+
 ## OUTPUT
 
-A table with the following columns<br /><br />
+
+**report.html** report of the analysis
+
+**reports** folder containing all the reports of the different processes as well as the **nextflow.config** file used
+
+**figures** folder containing all the figures in the **report.html** in the .png format
+
+**files** folder containing the following tables
+
+<br /><br />
+*<FILE_NAME>*_homopol_summary.tsv
+
 | Column | Description |
 | --- | --- |
 | **name** | name of the sequence |
@@ -74,8 +172,32 @@ A table with the following columns<br /><br />
 | **max_size** | number of times the nucleotide is repeated in the homopolymer (homopolymer length) |
 | **nb** | number homopolymers in the sequence (including homopolyers of size 1) |
 | **mean_size** | average homopolymer size in the sequence (including homopolyers of size 1) |
+| **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator) |
+| **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator) |
 
 If several longest homopolymers in a sequence, results are semi-colon separated in each cell.
+
+<br /><br />
+*<FILE_NAME>*_barplot_stat.tsv
+
+| Column | Description |
+| --- | --- |
+| **length** | homopolymer length |
+| **freq** | frequency |
+| **kind** | observed or random (theoretical) homopolymers |
+
+<br /><br />
+*<FILE_NAME>*_scatterplot_stat.tsv
+
+| Column | Description |
+| --- | --- |
+| **length** | homopolymer length |
+| **kind** | observed or random (theoretical) homopolymers |
+| **mean** | frequency mean along all the sequences of the batch |
+| **sd** | frequency standard deviation along all the sequences of the batch |
+| **CI95.inf** | 95% lower Confidence Interval of the mean |
+| **CI95.sup** | 5% upper Confidence Interval of the mean |
+
 
 <br /><br />
 ## VERSIONS
@@ -115,6 +237,11 @@ Gitlab developers
 
 <br /><br />
 ## WHAT'S NEW IN
+
+### v3.0
+
+1) Completely modified. Now the file is a nextflow and outputs include tables ,graphs and stats.
+
 
 ### v2.0
 

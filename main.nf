@@ -78,7 +78,7 @@ process init {
     script:
     """
     echo "---
-    title: 'Insertion Sites Report'
+    title: 'Homopolymer Report'
     author: 'Gael Millot'
     date: '`r Sys.Date()`'
     output:
@@ -88,7 +88,7 @@ process init {
     ---
 
     \\n\\n<br /><br />\\n\\n
-    " >> report.rmd
+    " > report.rmd
     """
 }
 
@@ -105,7 +105,7 @@ process homopolymer {
     // set takes the first and second items of the record
 
     output:
-    file "homopol_report.tsv" into homopol_report_ch
+    file "homopol_report.tsv" into homopol_report_ch1, homopol_report_ch2
 
     script:
     """
@@ -113,9 +113,65 @@ process homopolymer {
     """
 }
 
-homopol_report_ch.collectFile(name: "${file_name}.tsv").subscribe{it -> it.copyTo("${out_path}/files")} // concatenate all the homopol_report.tsv files in channel homopol_report_ch into a single file published into 
+homopol_report_ch1.collectFile(name: "${file_name}_homopol_summary.tsv").subscribe{it -> it.copyTo("${out_path}/files/${file_name}_homopol_summary.tsv")} // concatenate all the homopol_report.tsv files in channel homopol_report_ch into a single file published into the indicated path. STRONG WARNING: copyTo(${out_path}/files/) works only if the files folder already exists. Ohterwise, the saved file becomes "files"
+homopol_report_ch2.collectFile(name: "${file_name}_homopol_summary.tsv")into{tsv_ch1 ; tsv_ch2}
 
 
+
+
+process graph_stat {
+    label 'r_ext'
+    publishDir "${out_path}/figures", mode: 'copy', pattern: "{*.png}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/reports", mode: 'copy', pattern: "{graph_stat_report.txt}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/files", mode: 'copy', pattern: "{*.tsv}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    cache 'deep'
+
+    input:
+    val file_name
+    val cute_path
+    file  tsv from tsv_ch1
+
+    output:
+    file "*.png" into fig_ch1
+    file "*.tsv" into table_ch1
+    file "graph_stat_report.txt"
+    file "report.rmd" into log_ch1
+
+    script:
+    """
+    echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
+    echo -e "Randomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
+    echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br /><br />\\n\\n" >> report.rmd
+    echo -e "Each dot is a value obtained for one sequence." >> report.rmd
+    echo -e "
+\\n\\n</center>\\n\\n
+![Figure 1: Frequencies of homopolymer lengths.](./figures/plot_${file_name}.png){width=600}
+\\n\\n</center>\\n\\n
+    " >> report.rmd
+    echo "
+\\`\\`\\`{r, echo = FALSE}
+tempo <- read.table('./files/scatterplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
+kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
+\\`\\`\\`
+    \n\n
+    " >> report.rmd
+    echo -e "\\n\\n<br /><br />\\n\\n#### Chisquare test\\n\\n<br /><br />\\n\\n" >> report.rmd
+    graph_stat.R "${tsv}" "${file_name}" "${cute_path}" "report.rmd" "graph_stat_report.txt"
+    echo -e "\\n\\n<br /><br />\\n\\n#### Figure associated to the Chisquare test\\n\\n<br /><br />\\n\\n" >> report.rmd
+    echo -e "
+\\n\\n</center>\\n\\n
+![Figure 2: Frequencies of homopolymer lengths.](./figures/barplot_${file_name}.png){width=600}
+\\n\\n</center>\\n\\n
+    " >> report.rmd
+    echo "
+\\`\\`\\`{r, echo = FALSE}
+tempo <- read.table('./files/barplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
+kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
+\\`\\`\\`
+    \n\n
+    " >> report.rmd
+    """
+}
 
 
 
@@ -202,8 +258,10 @@ process print_report { // section 8.8 of the labbook 20200520
 
     input:
     val cute_path
-    file report from log_ch0.concat(log_ch2, log_ch3).collectFile(name: 'report.rmd', sort: false)
-    //file png1 from fig_ch1
+    file report from log_ch0.concat(log_ch1, log_ch2, log_ch3).collectFile(name: 'report.rmd', sort: false)
+    file png1 from fig_ch1.collect() // warning: several files
+    file table from tsv_ch2
+    file table2 from table_ch1.collect() // warning: several files
 
     output:
     file "report.html"
@@ -212,10 +270,12 @@ process print_report { // section 8.8 of the labbook 20200520
 
     script:
     """
-    cp ${report} report_file.rmd # this is to get hard files, not symlinks
+    cp ${report} report_file.rmd # this is to get hard files, not symlinks, for knitting
     mkdir figures
     mkdir files
     mkdir reports
+    cp ${png1} ./figures/ # this is to get hard files, not symlinks, for knitting
+    cp ${table} ${table2} ./files/ # this is to get hard files, not symlinks, for knitting
     echo "" > ./reports/nf_dag.png # trick to delude the knitting during the print report
     print_report.R "${cute_path}" "report_file.rmd" "print_report.txt"
     """
