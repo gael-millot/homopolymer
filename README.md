@@ -2,7 +2,7 @@
 [//]: # "tricks in markdown: https://openclassrooms.com/fr/courses/1304236-redigez-en-markdown"
 
 
-[![python](https://img.shields.io/badge/code-Python-blue?style=plastic)](https://www.python.org/)
+[![Nextflow](https://img.shields.io/badge/code-Nextflow-blue?style=plastic)](https://www.nextflow.io/)
 &nbsp;
 [![License: GPL-3.0](https://img.shields.io/badge/licence-GPL%20(%3E%3D3)-green?style=plastic)](https://www.gnu.org/licenses)
 
@@ -50,7 +50,7 @@ See Protocol 136 (ask me).
 
 If an error message appears, like:
 ```
-Unknown error accessing project `gmillot/14985_loot` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/14985_loot
+Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
 ```
 Purge using:
 ```
@@ -95,12 +95,12 @@ Launching `main.nf` [loving_morse] - revision: d5aabe528b
 3) Then run the following command from here \\wsl$\Ubuntu-20.04\home\gael:
 
 ```bash
-nextflow run -hub pasteur gmillot/08002_bourgeron -r v1.0.0
+nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0
 ```
 
 If an error message appears, like:
 ```
-WARN: Cannot read project manifest -- Cause: Remote resource not found: https://gitlab.pasteur.fr/api/v4/projects/gmillot%2F08002_bourgeron
+WARN: Cannot read project manifest -- Cause: Remote resource not found: https://gitlab.pasteur.fr/api/v4/projects/gmillot%2Fhomopolymer
 ```
 Make the distant repo public
 
@@ -118,7 +118,7 @@ See chmod in protocol 44.
 Start with:
 
 ```bash
-EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/14985_loot" # where the bin folder of the main.nf script is located
+EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/homopolymer" # where the bin folder of the main.nf script is located
 export CONF_BEFORE=/opt/gensoft/exe # on maestro
 
 export JAVA_CONF=java/13.0.2
@@ -141,10 +141,10 @@ Then run:
 
 ```bash
 # distant main.nf file
-HOME="$ZEUSHOME/14985_loot/" ; nextflow run --modules ${MODULES} -hub pasteur gmillot/14985_loot -r v7.10.0 -c $HOME/nextflow.config ; HOME="/pasteur/appa/homes/gmillot/"
+HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} -hub pasteur gmillot/homopolymer -r v7.10.0 -c $HOME/nextflow.config ; HOME="/pasteur/appa/homes/gmillot/"
 
-# local main.nf file ($HOME changed to allow the creation of .nextflow into /$ZEUSHOME/14985_loot/. See NFX_HOME in the nextflow soft script)
-HOME="$ZEUSHOME/14985_loot/" ; nextflow run --modules ${MODULES} main.nf ; HOME="/pasteur/appa/homes/gmillot/"
+# local main.nf file ($HOME changed to allow the creation of .nextflow into /$ZEUSHOME/homopolymer/. See NFX_HOME in the nextflow soft script)
+HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} main.nf ; HOME="/pasteur/appa/homes/gmillot/"
 ```
 
 
@@ -178,7 +178,7 @@ HOME="$ZEUSHOME/14985_loot/" ; nextflow run --modules ${MODULES} main.nf ; HOME=
 If several longest homopolymers in a sequence, results are semi-colon separated in each cell.
 
 <br /><br />
-*<FILE_NAME>*_barplot_stat.tsv
+barplot_stat.tsv
 
 | Column | Description |
 | --- | --- |
@@ -187,7 +187,7 @@ If several longest homopolymers in a sequence, results are semi-colon separated 
 | **kind** | observed or random (theoretical) homopolymers |
 
 <br /><br />
-*<FILE_NAME>*_scatterplot_stat.tsv
+scatterplot_stat.tsv
 
 | Column | Description |
 | --- | --- |
