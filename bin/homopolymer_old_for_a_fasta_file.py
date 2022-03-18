@@ -97,10 +97,10 @@ def homopoly_detect(sequence):
         homopoly_detect(sequence = seq)
     '''
 
-    homopoly_max = -1
+    size_max = -1
     nuc_max_list = []
     pos_max_list = []
-    homopoly_max_list = []
+    size_max_list = []
     count = 0
     prev_nuc = None
     ini_pos = -1
@@ -112,17 +112,17 @@ def homopoly_detect(sequence):
         else:
             homopoly_nb += 1
 
-            if homopoly_max < count & count >= 2:
+            if size_max < count & count >= 2:
                 nuc_max = prev_nuc
                 pos_max = ini_pos
-                homopoly_max = count
+                size_max = count
                 nuc_max_list = [nuc_max] # list is recreated
                 pos_max_list = [pos_max]
-                homopoly_max_list = [homopoly_max]
-            elif homopoly_max == count & count >= 2:
+                size_max_list = [size_max]
+            elif size_max == count & count >= 2:
                 nuc_max_list.append(prev_nuc) # list is appended
                 pos_max_list.append(ini_pos)
-                homopoly_max_list.append(count)
+                size_max_list.append(count)
             else:
                 nothing = None
 
@@ -131,7 +131,7 @@ def homopoly_detect(sequence):
 
         prev_nuc = nuc
 
-    return nuc_max_list, pos_max_list, homopoly_max_list, homopoly_nb
+    return nuc_max_list, pos_max_list, size_max_list, homopoly_nb
 
 
 ################################ End Functions
@@ -208,26 +208,26 @@ with open(input_path, 'r') as fasta: # open the fasta file, 'r' means read, adva
             name.append(line.strip()) # strip() added to remove the \n added at each end on "line" when appended in name
         else:
             length = len(line.strip())
-            nuc_max_list, pos_max_list, homopoly_max_list, homopoly_nb = homopoly_detect(line)
-            homopoly_rel_pos_list = [(x - 1) / (length - homopoly_max_list[0]) for x in pos_max_list]
+            nuc_max_list, pos_max_list, size_max_list, homopoly_nb = homopoly_detect(line)
+            homopoly_rel_pos_list = [(x - 1) / (length - size_max_list[0]) for x in pos_max_list]
             pos_max_list = [str(x) for x in pos_max_list] # to convert list of integers into strings
-            homopoly_max_list = [str(x) for x in homopoly_max_list] # to convert list of integers into strings
+            size_max_list = [str(x) for x in size_max_list] # to convert list of integers into strings
             homopoly_rel_pos_list = [str(x) for x in homopoly_rel_pos_list] # to convert list of integers into strings
             if len(nuc_max_list) > 1:
                 nuc_max_list = ";".join(nuc_max_list)
                 pos_max_list = ";".join(pos_max_list)
-                homopoly_max_list = ";".join(homopoly_max_list)
+                size_max_list = ";".join(size_max_list)
                 homopoly_rel_pos_list = ";".join(homopoly_rel_pos_list)
             else:
                 nuc_max_list = "".join(nuc_max_list)
                 pos_max_list = "".join(pos_max_list)
-                homopoly_max_list = "".join(homopoly_max_list)
+                size_max_list = "".join(size_max_list)
                 homopoly_rel_pos_list = "".join(homopoly_rel_pos_list)
             nucleotid.append(nuc_max_list)
             seq_length.append(length)
             starting_position.append(pos_max_list)
             relative_position.append(homopoly_rel_pos_list)
-            size.append(homopoly_max_list)
+            size.append(size_max_list)
             nb.append(homopoly_nb)
             mean_size.append(homopoly_nb / length)
 
