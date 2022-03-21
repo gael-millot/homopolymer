@@ -238,6 +238,11 @@ Gitlab developers
 <br /><br />
 ## WHAT'S NEW IN
 
+### v3.1
+
+1) Many things improved
+
+
 ### v3.0
 
 1) Completely modified. Now the file is a nextflow and outputs include tables ,graphs and stats.

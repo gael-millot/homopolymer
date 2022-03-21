@@ -12,7 +12,7 @@
 
 
 
-2022-03-18 23:03:27
+2022-03-21 14:43:37
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-END TIME: 2022-03-18 23:03:30
+END TIME: 2022-03-21 14:43:40
 
 
 
@@ -64,8 +64,8 @@ erase.objects     TRUE
 erase.graphs      TRUE 
 script            print_report 
 run.way           SCRIPT 
-command           /usr/lib/R/bin/exec/R,--no-echo,--no-restore,--file=/mnt/c/Users/Gael/Documents/Git_projects/homopolymer/bin/print_report.R,--args,https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.2.0/cute_little_R_functions.R,report_file.rmd,print_report.txt 
-cute              https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.2.0/cute_little_R_functions.R 
+command           /usr/lib/R/bin/exec/R,--no-echo,--no-restore,--file=/mnt/c/Users/Gael/Documents/Git_projects/homopolymer/bin/print_report.R,--args,https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.3.0/cute_little_R_functions.R,report_file.rmd,print_report.txt 
+cute              https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.3.0/cute_little_R_functions.R 
 report            report_file.rmd 
 log               print_report.txt
 
@@ -114,7 +114,7 @@ loaded via a namespace (and not attached):
 
 ################################ JOB END
 
-TIME: 2022-03-18 23:03:30
+TIME: 2022-03-21 14:43:40
 
 TOTAL TIME LAPSE: 3S
 

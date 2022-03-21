@@ -41,7 +41,18 @@ Each dot is a value obtained for one sequence.
 </center>
 
 
+![Figure 2: Frequencies of homopolymer lengths (Log10 scale).](./figures/plot_integrases_log.png){width=600}
+
+
+</center>
+
+
     
+
+
+<br /><br />
+
+Main values of the dot plot
 
 ```{r, echo = FALSE}
 tempo <- read.table('./files/scatterplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\t', check.names = FALSE) ; 
@@ -55,51 +66,21 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 
 <br /><br />
 
-#### Chisquare test
+Obs versus Theo t test for each homopolymer length
 
-<br /><br />
-
-
-$statistic
-X-squared 
- 9.576892 
-
-$parameter
-df 
-14 
-
-$p.value
-[1] 0.7924174
-
-$estimate
-   prop 1    prop 2    prop 3    prop 4    prop 5    prop 6    prop 7    prop 8 
-0.5041887 0.5123807 0.4364594 0.4625631 0.6088141 0.4636660 0.4114380 0.6897027 
-   prop 9   prop 10   prop 11   prop 12   prop 13   prop 14   prop 15 
-0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 
-
-$null.value
-NULL
-
-$conf.int
-NULL
-
-$alternative
-[1] "two.sided"
-
-$method
-[1] "15-sample test for equality of proportions without continuity correction"
-
-$data.name
-[1] "chi2.table"
+```{r, echo = FALSE}
+tempo <- read.table('./files/t_test.tsv', header = TRUE, colClasses = 'character', sep = '\t', check.names = FALSE) ; 
+kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
+```
+    
 
 
-
-
+    
 
 
 <br /><br />
 
-#### Figure associated to the Chisquare test
+#### Bar plot
 
 <br /><br />
 
@@ -110,7 +91,13 @@ $data.name
 </center>
 
 
-![Figure 2: Frequencies of homopolymer lengths.](./figures/barplot_integrases.png){width=600}
+![Figure 3: Frequencies of homopolymer lengths.](./figures/barplot_integrases.png){width=600}
+
+
+</center>
+
+
+![Figure 4: Frequencies of homopolymer lengths (Log10 scale).](./figures/barplot_integrases_log.png){width=600}
 
 
 </center>
@@ -118,8 +105,27 @@ $data.name
 
     
 
+
+<br /><br />
+
+Main values of the bar plot
+
 ```{r, echo = FALSE}
 tempo <- read.table('./files/barplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\t', check.names = FALSE) ; 
+kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
+```
+    
+
+
+    
+
+
+<br /><br />
+
+Test of Chi2
+
+```{r, echo = FALSE}
+tempo <- read.table('./files/chi2.tsv', header = TRUE, colClasses = 'character', sep = '\t', check.names = FALSE) ; 
 kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
 ```
     
@@ -152,11 +158,11 @@ Full .nextflow.log is in: /mnt/c/Users/Gael/Documents/Git_projects/homopolymer<b
 | Variable | Value |
 | :-- | :-- |
 | Project<br />(empty means no .git folder where the main.nf file is present) | origin	git@gitlab.pasteur.fr:gmillot/homopolymer.git (fetch) | # works only if the main script run is located in a directory that has a .git folder, i.e., that is connected to a distant repo
-| Git info<br />(empty means no .git folder where the main.nf file is present) | v2.0-1-g7b8c93ae6a-dirty | # idem. Provide the small commit number of the script and nextflow.config used in the execution
+| Git info<br />(empty means no .git folder where the main.nf file is present) | v3.0-dirty | # idem. Provide the small commit number of the script and nextflow.config used in the execution
 | Cmd line | nextflow run main.nf -resume |
 | execution mode | local |
 | Manifest's pipeline version | null |
-| result path | /mnt/c/Users/Gael/Documents/Git_projects/homopolymer/results/20220120_test_1647644596 |
+| result path | /mnt/c/Users/Gael/Documents/Git_projects/homopolymer/results/20220120_test_1647873793 |
 | nextflow version | 21.04.2 |
     
 
@@ -181,7 +187,7 @@ Full .nextflow.log is in: /mnt/c/Users/Gael/Documents/Git_projects/homopolymer<b
 
 | Name | Description | Value | 
 | :-- | :-- | :-- |
-| out_path | output folder path | /mnt/c/Users/Gael/Documents/Git_projects/homopolymer/results/20220120_test_1647644596 |
+| out_path | output folder path | /mnt/c/Users/Gael/Documents/Git_projects/homopolymer/results/20220120_test_1647873793 |
 | in_path | input folder path | /mnt/c/Users/gael/Documents/Git_projects/homopolymer/dataset |
     
 

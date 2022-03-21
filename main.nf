@@ -123,7 +123,7 @@ process graph_stat {
     label 'r_ext'
     publishDir "${out_path}/figures", mode: 'copy', pattern: "{*.png}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
     publishDir "${out_path}/reports", mode: 'copy', pattern: "{graph_stat_report.txt}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
-    publishDir "${out_path}/files", mode: 'copy', pattern: "{*.tsv}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/files", mode: 'copy', pattern: "{*.tsv,*.RData}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
     cache 'deep'
 
     input:
@@ -135,10 +135,13 @@ process graph_stat {
     file "*.png" into fig_ch1
     file "*.tsv" into table_ch1
     file "graph_stat_report.txt"
+    file "graph_stat.RData"
     file "report.rmd" into log_ch1
 
     script:
     """
+    graph_stat.R "${tsv}" "${file_name}" "${cute_path}" "graph_stat_report.txt"
+
     echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
     echo -e "Randomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
     echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br /><br />\\n\\n" >> report.rmd
@@ -147,7 +150,10 @@ process graph_stat {
 \\n\\n</center>\\n\\n
 ![Figure 1: Frequencies of homopolymer lengths.](./figures/plot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
+![Figure 2: Frequencies of homopolymer lengths (Log10 scale).](./figures/plot_${file_name}_log.png){width=600}
+\\n\\n</center>\\n\\n
     " >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nMain values of the dot plot" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/scatterplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
@@ -155,17 +161,34 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 \\`\\`\\`
     \n\n
     " >> report.rmd
-    echo -e "\\n\\n<br /><br />\\n\\n#### Chisquare test\\n\\n<br /><br />\\n\\n" >> report.rmd
-    graph_stat.R "${tsv}" "${file_name}" "${cute_path}" "report.rmd" "graph_stat_report.txt"
-    echo -e "\\n\\n<br /><br />\\n\\n#### Figure associated to the Chisquare test\\n\\n<br /><br />\\n\\n" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nObs versus Theo t test for each homopolymer length" >> report.rmd
+    echo "
+\\`\\`\\`{r, echo = FALSE}
+tempo <- read.table('./files/t_test.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
+kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
+\\`\\`\\`
+    \n\n
+    " >> report.rmd
+    echo -e "\\n\\n<br /><br />\\n\\n#### Bar plot\\n\\n<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 2: Frequencies of homopolymer lengths.](./figures/barplot_${file_name}.png){width=600}
+![Figure 3: Frequencies of homopolymer lengths.](./figures/barplot_${file_name}.png){width=600}
+\\n\\n</center>\\n\\n
+![Figure 4: Frequencies of homopolymer lengths (Log10 scale).](./figures/barplot_${file_name}_log.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nMain values of the bar plot" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/barplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
+kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
+\\`\\`\\`
+    \n\n
+    " >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nTest of Chi2" >> report.rmd
+    echo "
+\\`\\`\\`{r, echo = FALSE}
+tempo <- read.table('./files/chi2.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
 kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
 \\`\\`\\`
     \n\n

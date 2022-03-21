@@ -12,7 +12,7 @@
 
 
 
-2022-03-18 22:53:54
+2022-03-21 14:43:23
 
 
 
@@ -31,17 +31,17 @@
 
 
 
-END TIME: 2022-03-18 22:54:01
+END TIME: 2022-03-21 14:43:32
 
 
 
 
-TOTAL TIME LAPSE: 7S
+TOTAL TIME LAPSE: 8S
 
 
 
 
-ALL DATA SAVED IN all_objects.RData
+ALL DATA SAVED IN graph_stat.RData
 
 
 
@@ -64,11 +64,10 @@ erase.objects     TRUE
 erase.graphs      TRUE 
 script            graph_stat 
 run.way           SCRIPT 
-command           /usr/lib/R/bin/exec/R,--no-echo,--no-restore,--file=/mnt/c/Users/Gael/Documents/Git_projects/homopolymer/bin/graph_stat.R,--args,integrases.tsv,integrases,https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.2.0/cute_little_R_functions.R,report.rmd,graph_stat_report.txt 
-tsv               integrases.tsv 
+command           /usr/lib/R/bin/exec/R,--no-echo,--no-restore,--file=/mnt/c/Users/Gael/Documents/Git_projects/homopolymer/bin/graph_stat.R,--args,integrases_homopol_summary.tsv,integrases,https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.3.0/cute_little_R_functions.R,graph_stat_report.txt 
+tsv               integrases_homopol_summary.tsv 
 file_name         integrases 
-cute              https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.2.0/cute_little_R_functions.R 
-report.rmd        report.rmd 
+cute              https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.3.0/cute_little_R_functions.R 
 log               graph_stat_report.txt
 
 
@@ -117,9 +116,9 @@ loaded via a namespace (and not attached):
 
 ################################ JOB END
 
-TIME: 2022-03-18 22:54:01
+TIME: 2022-03-21 14:43:32
 
-TOTAL TIME LAPSE: 7S
+TOTAL TIME LAPSE: 8S
 
 
 

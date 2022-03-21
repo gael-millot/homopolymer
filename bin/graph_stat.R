@@ -74,7 +74,6 @@ if(interactive() == FALSE){ # if(grepl(x = commandArgs(trailingOnly = FALSE), pa
         "tsv", 
         "file_name", 
         "cute", 
-        "report.rmd",
         "log"
     ) # objects names exactly in the same order as in the bash code and recovered in args. Here only one, because only the path of the config file to indicate after the graph_stat.R script execution
     if(length(args) != length(tempo.arg.names)){
@@ -101,7 +100,6 @@ rm(tempo.cat)
 # tsv <- "C:\\Users\\gael\\Documents\\Git_projects\\homopolymer\\example of results\\integrases.tsv"
 # file_name <- "caca"
 # cute <- "https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.2.0/cute_little_R_functions.R"
-# report.rmd <- "report.rmd",
 # log <- "graph_stat_report.txt"
 
 
@@ -120,7 +118,6 @@ param.list <- c(
     "tsv", 
     "file_name", 
     "cute", 
-    "report.rmd",
     "log"
 )
 if(any(duplicated(param.list))){
@@ -228,7 +225,6 @@ ee <- expression(arg.check <- c(arg.check, tempo$problem) , text.check <- c(text
 tempo <- fun_check(data = tsv, class = "vector", typeof = "character", length = 1) ; eval(ee)
 tempo <- fun_check(data = file_name, class = "vector", typeof = "character", length = 1) ; eval(ee)
 tempo <- fun_check(data = cute, class = "vector", typeof = "character", length = 1) ; eval(ee)
-tempo <- fun_check(data = report.rmd, class = "vector", typeof = "character", length = 1) ; eval(ee)
 tempo <- fun_check(data = log, class = "vector", typeof = "character", length = 1) ; eval(ee)
 if(any(arg.check) == TRUE){ # normally no NA
     stop(paste0("\n\n================\n\n", paste(text.check[arg.check], collapse = "\n"), "\n\n================\n\n"), call. = FALSE) # == in stop() to be able to add several messages between == #
@@ -242,7 +238,6 @@ tempo.arg <-c(
     "tsv", 
     "file_name", 
     "cute", 
-    "report.rmd", 
     "log"
 )
 tempo.log <- sapply(lapply(tempo.arg, FUN = get, env = sys.nframe(), inherit = FALSE), FUN = is.null)
@@ -341,7 +336,10 @@ max2 <- which.max(diff(theo2 == 0))
 obs2 <- obs2[1:max(max1, max2)]
 theo2 <- theo2[1:max(max1, max2)]
 chi2.table <- matrix(c(obs2, theo2), ncol = 2, byrow = FALSE)
-fun_report(data = prop.test(chi2.table, correct = TRUE)[], output = report.rmd, path = "./", overwrite = FALSE)
+tempo <- suppressWarnings(suppressMessages(prop.test(chi2.table, correct = TRUE)[]))
+tempo2 <- data.frame(Parameter = c("Statistic", "Df", "P value", "Method", "Alternative"), Value = c(tempo$statistic, tempo$parameter, tempo$p.value, tempo$method, tempo$alternative))
+write.table(tempo2, file = paste0("./chi2.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+
 # end data for chi2 and barplot
 # data for scatterplot
 obs3 <- obs[1:max(max1, max2), ]
@@ -356,11 +354,109 @@ names(stat) <- c("length", "kind", "mean")
 stat2 <- aggregate(final3$freq, by = list(final3$length, final3$kind), FUN = sd)
 stat <- data.frame(stat, sd = stat2$x, CI95.inf = stat$mean - 1.96 * stat2$x, CI95.sup = stat$mean + 1.96 * stat2$x)
 write.table(stat, file = paste0("./scatterplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+final3$graph.length <- sprintf("%02.0f", final3$length)
+
+categ <- NULL
+obs.mean <- NULL
+theo.mean <- NULL
+obs.sd <- NULL
+theo.sd <- NULL
+df <- NULL
+t <- NULL
+p.value<-NULL
+for(i0 in unique(sort(final3$graph.length))){
+    categ <- c(categ, i0)
+    obs.tempo <- final3$freq[final3$graph.length == i0 & final3$kind == "obs"]
+    theo.tempo <- final3$freq[final3$graph.length == i0 & final3$kind == "theo"]
+    obs.mean <- c(obs.mean, mean(obs.tempo, na.rm = TRUE))
+    theo.mean <- c(theo.mean, mean(theo.tempo, na.rm = TRUE))
+    obs.sd <- c(obs.sd, sd(obs.tempo, na.rm = TRUE))
+    theo.sd <- c(theo.sd, sd(theo.tempo, na.rm = TRUE))
+    t.test.tempo <- t.test(obs.tempo, theo.tempo, var.equal = FALSE)
+    df <- c(df, t.test.tempo$parameter)
+    t <- c(t, t.test.tempo$statistic)
+    p.value <- c(p.value, t.test.tempo$p.value)
+}
+p.mult<-data.frame(categ, obs.mean, theo.mean, obs.sd, theo.sd, df, t, p.value, BH.adj.p.value = p.adjust(p.value, method = "BH"))
+write.table(p.mult, file = paste0("./t_test.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+
 # end data for scatterplot
 ############ end modifications of imported tables
 
 
 ############ plotting
+
+
+png(filename = paste0("plot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
+if(nrow(final3) > 0){
+    fun_gg_scatter(
+        data1 = list(final3, stat, stat, stat), # res # res[res$KIND == "obs.freq", ]
+        x = list("length", "length", "length", "length"), 
+        y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
+        categ = list("kind", "kind", "kind", "kind"), 
+        geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
+        line.size = list(NULL, 2, 1, 1), 
+        color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
+        dot.size = 4, 
+        dot.shape = 21, 
+        dot.border.size = 0.5, 
+        dot.border.color = NULL, 
+        alpha = list(0.1, 0.5, 0.5, 0.5), 
+        line.type = "solid",
+        legend.width = 0.2, 
+        legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
+        title = "", 
+        x.lab = "Homopolymer length", 
+        x.left.extra.margin = 0.05, 
+        y.top.extra.margin = 0.05, 
+        y.bottom.extra.margin = 0, 
+        x.right.extra.margin = 0.05, 
+        x.second.tick.nb = NULL, 
+        y.lab = "Frequency", 
+        y.log = "no", 
+        y.second.tick.nb = 5, 
+        text.size = 24, 
+        title.text.size = 16
+    )
+}else{
+    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+}
+
+png(filename = paste0("plot_", file_name, "_log.png"), width = 5000, height = 1800, units = "px", res = 300)
+if(nrow(final3) > 0){
+    fun_gg_scatter(
+        data1 = list(final3, stat, stat, stat), # res # res[res$KIND == "obs.freq", ]
+        x = list("length", "length", "length", "length"), 
+        y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
+        categ = list("kind", "kind", "kind", "kind"), 
+        geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
+        line.size = list(NULL, 2, 1, 1), 
+        color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
+        dot.size = 4, 
+        dot.shape = 21, 
+        dot.border.size = 0.5, 
+        dot.border.color = NULL, 
+        alpha = list(0.1, 0.5, 0.5, 0.5), 
+        line.type = "solid",
+        legend.width = 0.2, 
+        legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
+        title = "", 
+        x.lab = "Homopolymer length", 
+        x.left.extra.margin = 0.05, 
+        y.top.extra.margin = 0.05, 
+        y.bottom.extra.margin = 0, 
+        x.right.extra.margin = 0.05, 
+        x.second.tick.nb = NULL, 
+        y.lab = "Frequency", 
+        y.log = "log10", 
+        y.second.tick.nb = 5, 
+        text.size = 24, 
+        title.text.size = 16
+    )
+}else{
+    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+}
+
 
 png(filename = paste0("barplot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
 tempo <- data.frame(length = c((1:length(obs2)) - 0.1, (1:length(obs2)) + 0.1), freq = c(obs2, theo2), kind = rep(c("obs", "theo"), each = length(obs2)))
@@ -393,22 +489,17 @@ if(nrow(tempo) > 0){
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
 
-
-png(filename = paste0("plot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
-if(nrow(final3) > 0){
+png(filename = paste0("barplot_", file_name, "_log.png"), width = 5000, height = 1800, units = "px", res = 300)
+if(nrow(tempo) > 0){
     fun_gg_scatter(
-        data1 = list(final3, stat, stat, stat), # res # res[res$KIND == "obs.freq", ]
-        x = list("length", "length", "length", "length"), 
-        y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
-        categ = list("kind", "kind", "kind", "kind"), 
-        geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
-        line.size = list(NULL, 2, 1, 1), 
-        color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
-        dot.size = 4, 
-        dot.shape = 21, 
-        dot.border.size = 0.5, 
-        dot.border.color = NULL, 
-        line.type = "solid",
+        data1 = tempo, # res # res[res$KIND == "obs.freq", ]
+        x = "length", 
+        y = "freq", 
+        categ = "kind", 
+        geom = "geom_stick", 
+        geom.stick.base = 0, 
+        line.size = 3, 
+        color = fun_gg_palette(n = 2, kind = "std")[c(1, 2)], # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
         legend.width = 0.2, 
         title = "", 
         x.lab = "Homopolymer length", 
@@ -418,7 +509,7 @@ if(nrow(final3) > 0){
         x.right.extra.margin = 0.05, 
         x.second.tick.nb = NULL, 
         y.lab = "Frequency", 
-        y.log = "no", 
+        y.log = "log10", 
         y.second.tick.nb = 5, 
         text.size = 24, 
         title.text.size = 16
@@ -426,8 +517,6 @@ if(nrow(final3) > 0){
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
-
-
 
 
 ############ end plotting
@@ -454,14 +543,14 @@ set.seed(NULL)
 ################ Environment saving
 
 
-save(list = ls(), file = "all_objects.RData")
+save(list = ls(), file = "graph_stat.RData")
 fun_report(data = paste0("\n\n################################ RUNNING END"), output = log, path = "./", overwrite = FALSE)
 end.date <- Sys.time()
 end.time <- as.numeric(end.date)
 total.lapse <- round(lubridate::seconds_to_period(end.time - ini.time))
 fun_report(data = paste0("\n\nEND TIME: ", end.date), output = log, path = "./", overwrite = FALSE)
 fun_report(data = paste0("\n\nTOTAL TIME LAPSE: ", total.lapse), output = log, path = "./", overwrite = FALSE)
-fun_report(data = paste0("\n\nALL DATA SAVED IN all_objects.RData"), output = log, path = "./", overwrite = FALSE)
+fun_report(data = paste0("\n\nALL DATA SAVED IN graph_stat.RData"), output = log, path = "./", overwrite = FALSE)
 
 
 ################ end Environment saving
