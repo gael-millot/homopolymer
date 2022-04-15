@@ -34,8 +34,8 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 
 | File or folder | Description |
 | --- | --- |
-| **main.nf** | file that can be executed using a CLI (command line interface)
-| **nextflow.config** | parameter settings for the main.nf file |
+| **main.nf** | File that can be executed using a CLI (command line interface)
+| **nextflow.config** | Parameter settings for the main.nf file |
 | **dataset** | Folder containing some datasets than can be used as examples |
 | **example_of_result** | Folder containing examples of result obtained with the dataset |
 
@@ -46,15 +46,10 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 See Protocol 136 (ask me).
 
 
-### If error message
+### Local
 
-If an error message appears, like:
-```
-Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
-```
-Purge using:
-```
-rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
+```bash
+nextflow run main.nf
 ```
 
 
@@ -110,7 +105,7 @@ If an error message appears, like:
 permission denied
 ```
 
-See chmod in protocol 44.
+Use chmod to change the executable authorizations, including those in the bin folder.
 
 
 ### Using a cluster
@@ -147,6 +142,15 @@ HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} -hub pasteur g
 HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} main.nf ; HOME="/pasteur/appa/homes/gmillot/"
 ```
 
+If an error message appears, like:
+```
+Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
+```
+Purge using:
+```
+rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
+```
+
 
 ## OUTPUT
 
@@ -157,7 +161,7 @@ HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} main.nf ; HOME
 
 **figures** folder containing all the figures in the **report.html** in the .png format
 
-**files** folder containing the following tables
+**files** folder containing the following files
 
 <br /><br />
 *<FILE_NAME>*_homopol_summary.tsv
@@ -166,12 +170,12 @@ HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} main.nf ; HOME
 | --- | --- |
 | **name** | name of the sequence |
 | **seq_length** | nb of bases in the sequence |
-| **nucleotide** | nucleotide of the homopolymer |
+| **nucleotide** | nucleotide of the homopolymer of max size |
 | **starting_position** | position of the first nucleotide of the homopolymer of max size |
 | **relative_position** | relative position of the starting_position value when the first base of the sequence is 0 and the last one is 1. The formula used is y = (starting_position - 1) / (seq_length - max_size) to get 0 <= y <= 1) |
 | **max_size** | number of times the nucleotide is repeated in the homopolymer (homopolymer length) |
-| **nb** | number homopolymers in the sequence (including homopolyers of size 1) |
-| **mean_size** | average homopolymer size in the sequence (including homopolyers of size 1) |
+| **nb** | number of homopolymers in the sequence (not considering the homopolymers below the min_length parameter in the nextflow.config file) |
+| **mean_size** | average homopolymer size in the sequence (not considering the homopolymers below the min_length parameter in the nextflow.config file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole sequence length) |
 | **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator) |
 | **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator) |
 
@@ -198,8 +202,27 @@ scatterplot_stat.tsv
 | **CI95.inf** | 95% lower Confidence Interval of the mean |
 | **CI95.sup** | 5% upper Confidence Interval of the mean |
 
+<br /><br />
+t_test.tsv: the t test table displayed in the report.html file
+
+| Column | Description |
+| --- | --- |
+| **categ** | homopolymer length |
+| **obs.mean** | mean of the observed homopolymers in the batch of sequences |
+| **theo.mean** | mean of the random homopolymers |
+| **obs.sd** | standard deviation of the observed homopolymers in the batch of sequences |
+| **theo.sd ** | standard deviation of the random homopolymers |
+| **df** | degree of freedom of the t test |
+| **t** | t test statistics |
+| **p.value** | p value |
+| **BH.adj.p.value** | Benjamini Hochberg adjusted p values along all the t tests performed |
 
 <br /><br />
+chi2.tsv : the Chi2 test table displayed in the report.html file
+
+<br /><br />
+graph_stat.RData : .RData file containing all the objects used to make the report.html, that can be reused if necessary.
+
 ## VERSIONS
 
 
@@ -237,6 +260,11 @@ Gitlab developers
 
 <br /><br />
 ## WHAT'S NEW IN
+
+### v3.2
+
+1) Minimum length of homopolymer added as parameter, among other things
+
 
 ### v3.1
 

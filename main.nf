@@ -103,18 +103,19 @@ process homopolymer {
     // splitFasta(record:[header: true, seqString: true]) split a fasta files in records (one per sequence), each record with two items: the first is the header and the second the seq string
     // see https://www.nextflow.io/docs/latest/operator.html#splitfasta
     // set takes the first and second items of the record
+    val min_length
 
     output:
-    file "homopol_report.tsv" into homopol_report_ch1, homopol_report_ch2
+    file "homopol_df.tsv" into homopol_df_ch
 
     script:
     """
-    homopolymer.py "${seqString}" "${id}" "homopol_report.tsv"
+    homopolymer.py "${seqString}" "${id}" "${min_length}" "homopol_df.tsv"
     """
 }
 
-homopol_report_ch1.collectFile(name: "${file_name}_homopol_summary.tsv").subscribe{it -> it.copyTo("${out_path}/files/${file_name}_homopol_summary.tsv")} // concatenate all the homopol_report.tsv files in channel homopol_report_ch into a single file published into the indicated path. STRONG WARNING: copyTo(${out_path}/files/) works only if the files folder already exists. Ohterwise, the saved file becomes "files"
-homopol_report_ch2.collectFile(name: "${file_name}_homopol_summary.tsv")into{tsv_ch1 ; tsv_ch2}
+// homopol_df_ch1.collectFile(name: "${file_name}_homopol_summary.tsv").subscribe{it -> it.copyTo("${out_path}/files/${file_name}_homopol_summary.tsv")} // concatenate all the homopol_df.tsv files in channel homopol_df_ch into a single file published into the indicated path. STRONG WARNING: copyTo(${out_path}/files/) works only if the files folder already exists. Ohterwise, the saved file becomes "files"
+homopol_df_ch.collectFile(name: "${file_name}_homopol_summary.tsv")into{tsv_ch1 ; tsv_ch2}
 
 
 
@@ -123,12 +124,13 @@ process graph_stat {
     label 'r_ext'
     publishDir "${out_path}/figures", mode: 'copy', pattern: "{*.png}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
     publishDir "${out_path}/reports", mode: 'copy', pattern: "{graph_stat_report.txt}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
-    publishDir "${out_path}/files", mode: 'copy', pattern: "{*.tsv,*.RData}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/files", mode: 'copy', pattern: "{*.tsv,*.RData}", overwrite: false  // warning,: no space after the comma in the pattern
     cache 'deep'
 
     input:
     val file_name
     val cute_path
+    val min_length
     file  tsv from tsv_ch1
 
     output:
@@ -143,7 +145,7 @@ process graph_stat {
     graph_stat.R "${tsv}" "${file_name}" "${cute_path}" "graph_stat_report.txt"
 
     echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
-    echo -e "Randomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
+    echo -e "The minimal length of polymer considered is: ${min_length}\\n\\nRandomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
     echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br /><br />\\n\\n" >> report.rmd
     echo -e "Each dot is a value obtained for one sequence." >> report.rmd
     echo -e "
@@ -200,7 +202,7 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 
 process backup {
     label 'bash' // see the withLabel: bash in the nextflow config file 
-    publishDir "${out_path}/reports", mode: 'copy', pattern: "{*.config,*.log}", overwrite: false // since I am in mode copy, all the output files will be copied into the publishDir. See \\wsl$\Ubuntu-20.04\home\gael\work\aa\a0e9a739acae026fb205bc3fc21f9b
+    publishDir "${out_path}/reports", mode: 'copy', pattern: "{*.config,*.log}", overwrite: false // since I am in mode copy, all the output files will be copied into the publishDir. See \\wsl$\Ubuntu-20.04\home\gael\work\aa\a0e9a739acae026fb205bc3fc21f9b  // warning,: no space after the comma in the pattern
     cache 'false'
 
     input:
@@ -276,7 +278,7 @@ process workflowVersion { // create a file with the workflow version in out_path
 process print_report { // section 8.8 of the labbook 20200520
     label 'r_ext' // see the withLabel: bash in the nextflow config file 
     publishDir "${out_path}", mode: 'copy', pattern: "{*.html}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
-    publishDir "${out_path}/reports", mode: 'copy', pattern: "{*.txt,*.rmd}", overwrite: true // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/reports", mode: 'copy', pattern: "{*.txt,*.rmd}", overwrite: true // warning,: no space after the comma in the pattern
     cache 'false'
 
     input:

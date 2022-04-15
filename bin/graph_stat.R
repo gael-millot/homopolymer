@@ -313,6 +313,17 @@ tsv <- read.table(tsv, stringsAsFactors = FALSE, header = FALSE, sep = "\t")
 
 ############ modifications of imported tables
 
+# export tsv table with header
+tempo <- tsv
+tempo_names <- c('name', 'seq_length', 'nucleotide', 'starting_position', 'relative_position', 'max_size', "nb", 'mean_size', 'homopol_obs_distrib', 'homopol_theo_distrib')
+if(length(tempo) != length(tempo_names)){# normally no NA with is.null()
+    tempo.cat <- paste0("ERROR IN graph_stat.R:\nLENGTH OF THE IMPORTED TABLE IS NOT 10: ", length(tempo))
+    stop(paste0("\n\n================\n\n", tempo.cat, "\n\n================\n\n"), call. = FALSE) # == in stop() to be able to add several messages between ==
+}else{
+    names(tempo) <- tempo_names
+    write.table(tempo, file = paste0("./homopol_summary.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+}
+
 # recovering of the distributions
 obs <- tsv[ , 9]
 theo <- tsv[ , 10]
@@ -336,6 +347,7 @@ max2 <- which.max(diff(theo2 == 0))
 obs2 <- obs2[1:max(max1, max2)]
 theo2 <- theo2[1:max(max1, max2)]
 chi2.table <- matrix(c(obs2, theo2), ncol = 2, byrow = FALSE)
+chi2.table <- chi2.table[ ! apply(chi2.table, 1, FUN = function(x){all(x == 0, na.rm = TRUE)}), ]
 tempo <- suppressWarnings(suppressMessages(prop.test(chi2.table, correct = TRUE)[]))
 tempo2 <- data.frame(Parameter = c("Statistic", "Df", "P value", "Method", "Alternative"), Value = c(tempo$statistic, tempo$parameter, tempo$p.value, tempo$method, tempo$alternative))
 write.table(tempo2, file = paste0("./chi2.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
@@ -424,35 +436,41 @@ if(nrow(final3) > 0){
 
 png(filename = paste0("plot_", file_name, "_log.png"), width = 5000, height = 1800, units = "px", res = 300)
 if(nrow(final3) > 0){
-    fun_gg_scatter(
-        data1 = list(final3, stat, stat, stat), # res # res[res$KIND == "obs.freq", ]
-        x = list("length", "length", "length", "length"), 
-        y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
-        categ = list("kind", "kind", "kind", "kind"), 
-        geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
-        line.size = list(NULL, 2, 1, 1), 
-        color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
-        dot.size = 4, 
-        dot.shape = 21, 
-        dot.border.size = 0.5, 
-        dot.border.color = NULL, 
-        alpha = list(0.1, 0.5, 0.5, 0.5), 
-        line.type = "solid",
-        legend.width = 0.2, 
-        legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
-        title = "", 
-        x.lab = "Homopolymer length", 
-        x.left.extra.margin = 0.05, 
-        y.top.extra.margin = 0.05, 
-        y.bottom.extra.margin = 0, 
-        x.right.extra.margin = 0.05, 
-        x.second.tick.nb = NULL, 
-        y.lab = "Frequency", 
-        y.log = "log10", 
-        y.second.tick.nb = 5, 
-        text.size = 24, 
-        title.text.size = 16
-    )
+    if(any(stat < 0)){
+        fun_gg_empty_graph(text = "NEGATIVE VALUES IN STAT FILE: NO PLOT DRAWN")
+    }else{
+    # tempo <- stat
+    # tempo[tempo < 0] <- 0 # remove neg values for the graph because conversion into log
+        fun_gg_scatter(
+            data1 = list(final3, tempo, tempo, tempo), # res # res[res$KIND == "obs.freq", ]
+            x = list("length", "length", "length", "length"), 
+            y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
+            categ = list("kind", "kind", "kind", "kind"), 
+            geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
+            line.size = list(NULL, 2, 1, 1), 
+            color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
+            dot.size = 4, 
+            dot.shape = 21, 
+            dot.border.size = 0.5, 
+            dot.border.color = NULL, 
+            alpha = list(0.1, 0.5, 0.5, 0.5), 
+            line.type = "solid",
+            legend.width = 0.2, 
+            legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
+            title = "", 
+            x.lab = "Homopolymer length", 
+            x.left.extra.margin = 0.05, 
+            y.top.extra.margin = 0.05, 
+            y.bottom.extra.margin = 0, 
+            x.right.extra.margin = 0.05, 
+            x.second.tick.nb = NULL, 
+            y.lab = "Frequency", 
+            y.log = "log10", 
+            y.second.tick.nb = 5, 
+            text.size = 24, 
+            title.text.size = 16
+        )
+    }
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
