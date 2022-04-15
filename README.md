@@ -43,9 +43,6 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 <br /><br />
 ## HOW TO RUN
 
-See Protocol 136 (ask me).
-
-
 ### Local
 
 ```bash
@@ -69,7 +66,7 @@ providers {
 And save it as 'scm' in the .nextflow folder. For instance in:
 \\wsl$\Ubuntu-20.04\home\gael\.nextflow
 
-Warning: ssh key must be set for gitlab, to be able to use this procedure (see protocol 44).
+Warning: ssh key must be set for gitlab, to be able to use this procedure.
 
 
 2) Mount a server if required:
@@ -87,7 +84,7 @@ Launching `main.nf` [loving_morse] - revision: d5aabe528b
 ```
 
 
-3) Then run the following command from here \\wsl$\Ubuntu-20.04\home\gael:
+3) Then run the following command from where the .nextflow folder is (see above):
 
 ```bash
 nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0
@@ -151,7 +148,7 @@ Purge using:
 rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
 ```
 
-
+<br /><br />
 ## OUTPUT
 
 
@@ -163,7 +160,6 @@ rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
 
 **files** folder containing the following files
 
-<br /><br />
 *<FILE_NAME>*_homopol_summary.tsv
 
 | Column | Description |
@@ -181,7 +177,7 @@ rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
 
 If several longest homopolymers in a sequence, results are semi-colon separated in each cell.
 
-<br /><br />
+<br />
 barplot_stat.tsv
 
 | Column | Description |
@@ -190,7 +186,7 @@ barplot_stat.tsv
 | **freq** | frequency |
 | **kind** | observed or random (theoretical) homopolymers |
 
-<br /><br />
+<br />
 scatterplot_stat.tsv
 
 | Column | Description |
@@ -202,7 +198,7 @@ scatterplot_stat.tsv
 | **CI95.inf** | 95% lower Confidence Interval of the mean |
 | **CI95.sup** | 5% upper Confidence Interval of the mean |
 
-<br /><br />
+<br />
 t_test.tsv: the t test table displayed in the report.html file
 
 | Column | Description |
@@ -217,12 +213,13 @@ t_test.tsv: the t test table displayed in the report.html file
 | **p.value** | p value |
 | **BH.adj.p.value** | Benjamini Hochberg adjusted p values along all the t tests performed |
 
-<br /><br />
+<br />
 chi2.tsv : the Chi2 test table displayed in the report.html file
 
-<br /><br />
+<br />
 graph_stat.RData : .RData file containing all the objects used to make the report.html, that can be reused if necessary.
 
+<br /><br />
 ## VERSIONS
 
 
