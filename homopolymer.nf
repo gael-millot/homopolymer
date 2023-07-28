@@ -2,7 +2,7 @@ nextflow.enable.dsl=1
 /*
 #########################################################################################
 ##                                                                                     ##
-##     main.nf                                                                         ##
+##     homopolymer.nf                                                                         ##
 ##     Analysis of homopolymers in a batch of sequences in a fasta file                ##
 ##                                                                                     ##
 ##     Gael A. Millot                                                                  ##
@@ -238,13 +238,13 @@ process workflowVersion { // create a file with the workflow version in out_path
     echo -e "\\n\\n#### General\\n\\n
 | Variable | Value |
 | :-- | :-- |
-| Project<br />(empty means no .git folder where the main.nf file is present) | \$(git -C ${projectDir} remote -v | head -n 1) | # works only if the main script run is located in a directory that has a .git folder, i.e., that is connected to a distant repo
-| Git info<br />(empty means no .git folder where the main.nf file is present) | \$(git -C ${projectDir} describe --abbrev=10 --dirty --always --tags) | # idem. Provide the small commit number of the script and nextflow.config used in the execution
+| Project<br />(empty means no .git folder where the homopolymer.nf file is present) | \$(git -C ${projectDir} remote -v | head -n 1) | # works only if the main script run is located in a directory that has a .git folder, i.e., that is connected to a distant repo
+| Git info<br />(empty means no .git folder where the homopolymer.nf file is present) | \$(git -C ${projectDir} describe --abbrev=10 --dirty --always --tags) | # idem. Provide the small commit number of the script and nextflow.config used in the execution
 | Cmd line | ${workflow.commandLine} |
 | execution mode | ${system_exec} |" >> report.rmd 
 
     if [[ ! -z \$modules ]] ; then
-        echo "| loaded modules (according to specification by the user thanks to the --modules argument of main.nf) | ${modules} |" >> report.rmd
+        echo "| loaded modules (according to specification by the user thanks to the --modules argument of homopolymer.nf) | ${modules} |" >> report.rmd
     fi
     
     echo "| Manifest's pipeline version | ${workflow.manifest.version} |
@@ -256,7 +256,7 @@ process workflowVersion { // create a file with the workflow version in out_path
 | Name | Description | Value | 
 | :-- | :-- | :-- |
 | launchDir | Directory where the workflow is run | ${launchDir} |
-| nprojectDir | Directory where the main.nf script is located | ${projectDir} |
+| nprojectDir | Directory where the homopolymer.nf script is located | ${projectDir} |
 | workDir | Directory where tasks temporary files are created | ${workDir} |
     " >> report.rmd
 
