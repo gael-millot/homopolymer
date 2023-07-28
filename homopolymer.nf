@@ -1,3 +1,4 @@
+nextflow.enable.dsl=1
 /*
 #########################################################################################
 ##                                                                                     ##
@@ -11,6 +12,18 @@
 ##                                                                                     ##
 #########################################################################################
 */
+
+
+print("\n\nRESULT DIRECTORY: ${out_path}")
+print("\n\nWARNING: PARAMETERS ALREADY INTERPRETED IN THE .config FILE:")
+print("    system_exec: ${system_exec}")
+print("    out_path: ${out_path_ini}")
+if("${system_exec}" != "local"){
+    print("    queue: ${queue}")
+    print("    qos: ${qos}")
+    print("    add_options: ${add_options}")
+}
+print("\n\n")
 
 
 //////// Arguments of nextflow run
@@ -150,9 +163,7 @@ process graph_stat {
     echo -e "Each dot is a value obtained for one sequence." >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 1: Frequencies of homopolymer lengths.](./figures/plot_${file_name}.png){width=600}
-\\n\\n</center>\\n\\n
-![Figure 2: Frequencies of homopolymer lengths (Log10 scale).](./figures/plot_${file_name}_log.png){width=600}
+![Figure 1: Proportions of homopolymer lengths.](./figures/plot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
     echo -e "\n\\n<br /><br />\\n\\nMain values of the dot plot" >> report.rmd
@@ -171,26 +182,16 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 \\`\\`\\`
     \n\n
     " >> report.rmd
-    echo -e "\\n\\n<br /><br />\\n\\n#### Bar plot\\n\\n<br /><br />\\n\\n" >> report.rmd
+    echo -e "\\n\\n<br /><br />\\n\\n#### Boxplot\\n\\n<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 3: Frequencies of homopolymer lengths.](./figures/barplot_${file_name}.png){width=600}
-\\n\\n</center>\\n\\n
-![Figure 4: Frequencies of homopolymer lengths (Log10 scale).](./figures/barplot_${file_name}_log.png){width=600}
+![Figure 2: Proportions of homopolymer lengths.](./figures/boxplot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nMain values of the bar plot" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nMain values of the boxplot" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
-tempo <- read.table('./files/barplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
-kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
-\\`\\`\\`
-    \n\n
-    " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nTest of Chi2" >> report.rmd
-    echo "
-\\`\\`\\`{r, echo = FALSE}
-tempo <- read.table('./files/chi2.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
+tempo <- read.table('./files/boxplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
 kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
 \\`\\`\\`
     \n\n

@@ -315,7 +315,7 @@ tsv <- read.table(tsv, stringsAsFactors = FALSE, header = FALSE, sep = "\t")
 
 # export tsv table with header
 tempo <- tsv
-tempo_names <- c('name', 'seq_length', 'nucleotide', 'starting_position', 'relative_position', 'max_size', "nb", 'mean_size', 'homopol_obs_distrib', 'homopol_theo_distrib')
+tempo_names <- c('name', 'seq_length', 'max_homopol_size', 'nucleotide', 'starting_position', 'relative_position', "nb", 'mean_size', 'homopol_obs_distrib', 'homopol_theo_distrib')
 if(length(tempo) != length(tempo_names)){# normally no NA with is.null()
     tempo.cat <- paste0("ERROR IN graph_stat.R:\nLENGTH OF THE IMPORTED TABLE IS NOT 10: ", length(tempo))
     stop(paste0("\n\n================\n\n", tempo.cat, "\n\n================\n\n"), call. = FALSE) # == in stop() to be able to add several messages between ==
@@ -323,10 +323,11 @@ if(length(tempo) != length(tempo_names)){# normally no NA with is.null()
     names(tempo) <- tempo_names
     write.table(tempo, file = paste0("./homopol_summary.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }
+tsv <- tempo
 
-# recovering of the distributions
-obs <- tsv[ , 9]
-theo <- tsv[ , 10]
+# recovering of the freq distributions
+obs <- tsv[ , 'homopol_obs_distrib']
+theo <- tsv[ , 'homopol_theo_distrib']
 obs <- strsplit(obs, split = ";") # list
 theo <- strsplit(theo, split = ";") # list
 max_cells <- max(sapply(X = c(obs, theo), FUN = length), na.rm = TRUE)
@@ -334,26 +335,23 @@ obs <- lapply(X = obs, FUN = function(x = X, y = max_cells){c(x, rep("0", y - le
 theo <- lapply(X = theo, FUN = function(x = X, y = max_cells){c(x, rep("0", y - length(x)))})
 obs <- as.matrix(as.data.frame(obs))
 theo <- as.matrix(as.data.frame(theo))
-colnames(obs) <- tsv[ , 1]
-colnames(theo) <- tsv[ , 1]
+colnames(obs) <- tsv[ , 'name']
+colnames(theo) <- tsv[ , 'name']
 mode(obs) <- "double"
 mode(theo) <- "double"
-# end recovering of the distributions
-# data for chi2 and barplot
+# end recovering of the freq distributions
+# recovering of the prop distributions
+obs.prop <- apply(obs, MARGIN = 2, FUN = function(x){x / sum(x, na.rm = TRUE)})
+theo.prop <- apply(theo, MARGIN = 2, FUN = function(x){x / sum(x, na.rm = TRUE)})
+# end recovering of the prop distributions
+
+# data for barplot and scatterplot
 obs2 <- apply(X = obs, MARGIN = 1, FUN = sum)
 theo2 <- apply(X = theo, MARGIN = 1, FUN = sum)
 max1 <- which.max(diff(obs2 == 0)) # to determine where there are only zero after the last number
 max2 <- which.max(diff(theo2 == 0))
 obs2 <- obs2[1:max(max1, max2)]
 theo2 <- theo2[1:max(max1, max2)]
-chi2.table <- matrix(c(obs2, theo2), ncol = 2, byrow = FALSE)
-chi2.table <- chi2.table[ ! apply(chi2.table, 1, FUN = function(x){all(x == 0, na.rm = TRUE)}), ]
-tempo <- suppressWarnings(suppressMessages(prop.test(chi2.table, correct = TRUE)[]))
-tempo2 <- data.frame(Parameter = c("Statistic", "Df", "P value", "Method", "Alternative"), Value = c(tempo$statistic, tempo$parameter, tempo$p.value, tempo$method, tempo$alternative))
-write.table(tempo2, file = paste0("./chi2.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
-
-# end data for chi2 and barplot
-# data for scatterplot
 obs3 <- obs[1:max(max1, max2), ]
 theo3 <- theo[1:max(max1, max2), ]
 obs3 <- data.frame(fun_df_remod(as.data.frame(t(obs3))), kind = "obs")
@@ -365,9 +363,40 @@ stat <- aggregate(final3$freq, by = list(final3$length, final3$kind), FUN = mean
 names(stat) <- c("length", "kind", "mean")
 stat2 <- aggregate(final3$freq, by = list(final3$length, final3$kind), FUN = sd)
 stat <- data.frame(stat, sd = stat2$x, CI95.inf = stat$mean - 1.96 * stat2$x, CI95.sup = stat$mean + 1.96 * stat2$x)
-write.table(stat, file = paste0("./scatterplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+# write.table(stat, file = paste0("./scatterplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 final3$graph.length <- sprintf("%02.0f", final3$length)
+chi2.table <- matrix(c(obs2, theo2), ncol = 2, byrow = FALSE)
+chi2.table <- chi2.table[ ! apply(chi2.table, 1, FUN = function(x){all(x == 0, na.rm = TRUE)}), ]
+tempo <- suppressWarnings(suppressMessages(prop.test(chi2.table, correct = TRUE)[]))
+tempo2 <- data.frame(Parameter = c("Statistic", "Df", "P value", "Method", "Alternative"), Value = c(tempo$statistic, tempo$parameter, tempo$p.value, tempo$method, tempo$alternative))
+# write.table(tempo2, file = paste0("./chi2.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+# end data for barplot and scatterplot
 
+# data for prop barplot and scatterplot
+obs2.prop <- apply(X = obs.prop, MARGIN = 1, FUN = sum)
+theo2.prop <- apply(X = theo.prop, MARGIN = 1, FUN = sum)
+max1.prop <- which.max(diff(obs2.prop == 0)) # to determine where there are only zero after the last number
+max2.prop <- which.max(diff(theo2.prop == 0))
+obs2.prop <- obs2.prop[1:max(max1.prop, max2.prop)]
+theo2.prop <- theo2.prop[1:max(max1.prop, max2.prop)]
+obs3.prop <- obs.prop[1:max(max1.prop, max2.prop), ]
+theo3.prop <- theo.prop[1:max(max1.prop, max2.prop), ]
+obs3.prop <- data.frame(fun_df_remod(as.data.frame(t(obs3.prop))), kind = "obs")
+theo3.prop <- data.frame(fun_df_remod(as.data.frame(t(theo3.prop))), kind = "theo")
+final3.prop <- rbind(obs3.prop, theo3.prop)
+names(final3.prop) <- c("freq", "length", "name" , "kind")
+final3.prop$length <- as.numeric(gsub(x = as.character(final3.prop$length), pattern = "V", replacement = ""))
+stat.prop <- aggregate(final3.prop$freq, by = list(final3.prop$length, final3.prop$kind), FUN = mean)
+names(stat.prop) <- c("length", "kind", "mean")
+stat2.prop <- aggregate(final3.prop$freq, by = list(final3.prop$length, final3.prop$kind), FUN = sd)
+stat.prop <- data.frame(stat.prop, sd = stat2.prop$x, CI95.inf = stat.prop$mean - 1.96 * stat2.prop$x, CI95.sup = stat.prop$mean + 1.96 * stat2.prop$x)
+write.table(stat.prop, file = paste0("./scatterplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+final3.prop$graph.length <- sprintf("%02.0f", final3.prop$length)
+# end data for prop barplot and scatterplot
+
+
+
+# data for t.test
 categ <- NULL
 obs.mean <- NULL
 theo.mean <- NULL
@@ -390,9 +419,38 @@ for(i0 in unique(sort(final3$graph.length))){
     p.value <- c(p.value, t.test.tempo$p.value)
 }
 p.mult<-data.frame(categ, obs.mean, theo.mean, obs.sd, theo.sd, df, t, p.value, BH.adj.p.value = p.adjust(p.value, method = "BH"))
-write.table(p.mult, file = paste0("./t_test.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+# write.table(p.mult, file = paste0("./t_test.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+# end data for t.test
 
-# end data for scatterplot
+# data for prop t.test
+categ.prop <- NULL
+obs.mean.prop <- NULL
+theo.mean.prop <- NULL
+obs.sd.prop <- NULL
+theo.sd.prop <- NULL
+df.prop <- NULL
+t.prop <- NULL
+p.value.prop <-NULL
+for(i0 in unique(sort(final3.prop$graph.length))){
+    categ.prop <- c(categ.prop, i0)
+    obs.tempo.prop <- final3.prop$freq[final3.prop$graph.length == i0 & final3.prop$kind == "obs"]
+    theo.tempo.prop <- final3.prop$freq[final3.prop$graph.length == i0 & final3.prop$kind == "theo"]
+    obs.mean.prop <- c(obs.mean.prop, mean(obs.tempo.prop, na.rm = TRUE))
+    theo.mean.prop <- c(theo.mean.prop, mean(theo.tempo.prop, na.rm = TRUE))
+    obs.sd.prop <- c(obs.sd.prop, sd(obs.tempo.prop, na.rm = TRUE))
+    theo.sd.prop <- c(theo.sd.prop, sd(theo.tempo.prop, na.rm = TRUE))
+    t.test.tempo.prop <- t.test(obs.tempo.prop, theo.tempo.prop, var.equal = FALSE)
+    df.prop <- c(df.prop, t.test.tempo.prop$parameter)
+    t.prop <- c(t.prop, t.test.tempo.prop$statistic)
+    p.value.prop <- c(p.value.prop, t.test.tempo.prop$p.value)
+}
+p.mult.prop <- data.frame(categ.prop, obs.mean.prop, theo.mean.prop, obs.sd.prop, theo.sd.prop, df.prop, t.prop, p.value.prop, BH.adj.p.value = p.adjust(p.value.prop, method = "BH"))
+write.table(p.mult.prop, file = paste0("./t_test.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+# end data for prop t.test
+
+
+
+
 ############ end modifications of imported tables
 
 
@@ -400,9 +458,9 @@ write.table(p.mult, file = paste0("./t_test.tsv"), row.names = FALSE, col.names 
 
 
 png(filename = paste0("plot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
-if(nrow(final3) > 0){
+if(nrow(final3.prop) > 0){
     fun_gg_scatter(
-        data1 = list(final3, stat, stat, stat), # res # res[res$KIND == "obs.freq", ]
+        data1 = list(final3.prop, stat.prop, stat.prop, stat.prop), # res # res[res$KIND == "obs.freq", ]
         x = list("length", "length", "length", "length"), 
         y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
         categ = list("kind", "kind", "kind", "kind"), 
@@ -424,7 +482,7 @@ if(nrow(final3) > 0){
         y.bottom.extra.margin = 0, 
         x.right.extra.margin = 0.05, 
         x.second.tick.nb = NULL, 
-        y.lab = "Frequency", 
+        y.lab = "Proportion", 
         y.log = "no", 
         y.second.tick.nb = 5, 
         text.size = 24, 
@@ -434,107 +492,33 @@ if(nrow(final3) > 0){
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
 
-png(filename = paste0("plot_", file_name, "_log.png"), width = 5000, height = 1800, units = "px", res = 300)
-if(nrow(final3) > 0){
-    if(any(stat < 0)){
-        fun_gg_empty_graph(text = "NEGATIVE VALUES IN STAT FILE: NO PLOT DRAWN")
-    }else{
-    # tempo <- stat
-    # tempo[tempo < 0] <- 0 # remove neg values for the graph because conversion into log
-        fun_gg_scatter(
-            data1 = list(final3, tempo, tempo, tempo), # res # res[res$KIND == "obs.freq", ]
-            x = list("length", "length", "length", "length"), 
-            y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
-            categ = list("kind", "kind", "kind", "kind"), 
-            geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
-            line.size = list(NULL, 2, 1, 1), 
-            color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
-            dot.size = 4, 
-            dot.shape = 21, 
-            dot.border.size = 0.5, 
-            dot.border.color = NULL, 
-            alpha = list(0.1, 0.5, 0.5, 0.5), 
-            line.type = "solid",
-            legend.width = 0.2, 
-            legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
-            title = "", 
-            x.lab = "Homopolymer length", 
-            x.left.extra.margin = 0.05, 
-            y.top.extra.margin = 0.05, 
-            y.bottom.extra.margin = 0, 
-            x.right.extra.margin = 0.05, 
-            x.second.tick.nb = NULL, 
-            y.lab = "Frequency", 
-            y.log = "log10", 
-            y.second.tick.nb = 5, 
-            text.size = 24, 
-            title.text.size = 16
-        )
-    }
-}else{
-    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
-}
 
-
-png(filename = paste0("barplot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
-tempo <- data.frame(length = c((1:length(obs2)) - 0.1, (1:length(obs2)) + 0.1), freq = c(obs2, theo2), kind = rep(c("obs", "theo"), each = length(obs2)))
-write.table(tempo, file = paste0("./barplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
-if(nrow(tempo) > 0){
-    fun_gg_scatter(
-        data1 = tempo, # res # res[res$KIND == "obs.freq", ]
-        x = "length", 
+png(filename = paste0("boxplot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
+# tempo <- data.frame(length = c((1:length(obs2.prop)) - 0.1, (1:length(obs2)) + 0.1), freq = c(obs2.prop, theo2.prop), kind = rep(c("obs", "theo"), each = length(obs2.prop)))
+# write.table(tempo, file = paste0("./boxplot.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+if(nrow(final3.prop) > 0){
+    tempo <- fun_gg_boxplot(
+        data1 = final3.prop, # res # res[res$KIND == "obs.freq", ]
+        categ = c("graph.length", "kind"),  
         y = "freq", 
-        categ = "kind", 
-        geom = "geom_stick", 
-        geom.stick.base = 0, 
-        line.size = 3, 
-        color = fun_gg_palette(n = 2, kind = "std")[c(1, 2)], # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
         legend.width = 0.2, 
         title = "", 
         x.lab = "Homopolymer length", 
-        x.left.extra.margin = 0.05, 
         y.top.extra.margin = 0.05, 
         y.bottom.extra.margin = 0, 
-        x.right.extra.margin = 0.05, 
-        x.second.tick.nb = NULL, 
-        y.lab = "Frequency", 
+        y.lab = "Proportion", 
         y.log = "no", 
         y.second.tick.nb = 5, 
         text.size = 24, 
-        title.text.size = 16
+        title.text.size = 16,
+        return = TRUE
     )
+    write.table(as.matrix(tempo$stat), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+    write.table("", file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }
 
-png(filename = paste0("barplot_", file_name, "_log.png"), width = 5000, height = 1800, units = "px", res = 300)
-if(nrow(tempo) > 0){
-    fun_gg_scatter(
-        data1 = tempo, # res # res[res$KIND == "obs.freq", ]
-        x = "length", 
-        y = "freq", 
-        categ = "kind", 
-        geom = "geom_stick", 
-        geom.stick.base = 0, 
-        line.size = 3, 
-        color = fun_gg_palette(n = 2, kind = "std")[c(1, 2)], # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
-        legend.width = 0.2, 
-        title = "", 
-        x.lab = "Homopolymer length", 
-        x.left.extra.margin = 0.05, 
-        y.top.extra.margin = 0.05, 
-        y.bottom.extra.margin = 0, 
-        x.right.extra.margin = 0.05, 
-        x.second.tick.nb = NULL, 
-        y.lab = "Frequency", 
-        y.log = "log10", 
-        y.second.tick.nb = 5, 
-        text.size = 24, 
-        title.text.size = 16
-    )
-}else{
-    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
-}
 
 
 ############ end plotting

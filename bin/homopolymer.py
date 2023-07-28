@@ -97,9 +97,9 @@ def homopoly_detect(sequence, mini):
         mini: the mini length of homopolymer
     RETURN
         a list containing:
+            size_max_list: list of the length of the longest homopol (list because of the case of equality, but here, all the numbers are the saze because same max size. Differences will be for the related nuc_max_list and pos_max_list)
             nuc_max_list: list of the nucleotid (A,T,C,G) that is the longest homopol (list because of the case of equality)
             pos_max_list: list of the position (using the first nuc of the homopol) that is the longest homopol (list because of the case of equality)
-            size_max_list: list of the length of the biggest homopol (list because of the case of equality, but here, all the numbers are the saze because same max size)
             homopoly_nb: number of homopolymers
             homo_distrib_list: list of all the number of homopol, the first position in the list being the homopol of size 1 and the last, the homopol of size of the sequence
     REQUIRED PACKAGES
@@ -122,9 +122,9 @@ def homopoly_detect(sequence, mini):
     # Do not fill data frames: first list then convert https://stackoverflow.com/questions/13784192/creating-an-empty-pandas-dataframe-then-filling-it
     homo_distrib_list = [0] * length # list of zero that will contain the count of all the homopolymers, the first position in the list being the homopol of size 1 and the last, the homopol of size of the sequence
 
-    for pos, nuc in enumerate(sequence): # https://docs.python.org/3/library/functions.html#enumerate # warning, first nuc is position 0
-        if length == 1:
-            if mini == 1: # otherwise, the output lists remain empty
+    for pos, nuc in enumerate(sequence): # https://docs.python.org/3/library/functions.html#enumerate # warning, first nuc is position 0 bt I could have written enumerate(sequence, start = 1) # split the sequence in single nuc and provide the pos of each of these nuc (0, 1, 2, etc.). Thus, pos will be 0, 1, 2, etc. and nuc will be the associated nuc of the seq (ex: A,T,G, etc.)
+        if length == 1: # input seq of 1 nucleotide
+            if mini == 1: # else -> the output lists remain empty
                 nuc_max_list = [nuc]
                 pos_max_list = [pos + 1]
                 size_max_list = [1]
@@ -142,7 +142,7 @@ def homopoly_detect(sequence, mini):
                 if nuc == prev_nuc:
                     count += 1
                     
-                if nuc != prev_nuc: # wanring: even if at pos, we are taking the info of prev_nuc here
+                if nuc != prev_nuc: # warning: even if at pos, we are taking the info of prev_nuc here
                     homo_distrib_list[count - 1] += 1
                     if count >= mini:
                         homopoly_nb += 1
@@ -183,10 +183,9 @@ def homopoly_detect(sequence, mini):
                         
                         else:
                             nothing = None
-                    
         prev_nuc = nuc
 
-    return nuc_max_list, pos_max_list, size_max_list, homopoly_nb, homo_distrib_list # warning: homopoly_nb is not a list
+    return size_max_list, nuc_max_list, pos_max_list, homopoly_nb, homo_distrib_list # warning: homopoly_nb is not a list
 
 
 
@@ -233,12 +232,12 @@ random.seed(1)
 
 # observed homopolymers
 length = len(seq.strip()) # length of the string (here the sequence)
-nuc_max_list, pos_max_list, size_max_list, homopoly_nb, homo_distrib_list = homopoly_detect(sequence = seq, mini = min_length)
+size_max_list, nuc_max_list, pos_max_list, homopoly_nb, homo_distrib_list = homopoly_detect(sequence = seq, mini = min_length)
 tempo_verif = numpy.multiply(homo_distrib_list, list(range(1, len(homo_distrib_list) + 1))).sum() #  + 1 to deal with the fact that range exclude the last number
 if length != tempo_verif:
     sys.exit("Error in homopolymer.py: the observed distribution list homo_distrib_list should have a total sum corresponding to the length of the sequence")
 
-homopoly_rel_pos_list = [(x - 1) / (length - size_max_list[0]) for x in pos_max_list]
+homopoly_rel_pos_list = [(x - 1) / (length) for x in pos_max_list]
 pos_max_list = [str(x) for x in pos_max_list] # to convert list of integers into strings
 size_max_list = [str(x) for x in size_max_list] # to convert list of integers into strings
 homopoly_rel_pos_list = [str(x) for x in homopoly_rel_pos_list] # to convert list of integers into strings
@@ -275,8 +274,8 @@ mean_size = tempo_num / tempo_denom
 homo_distrib_list = [str(x) for x in homo_distrib_list] # to convert list of integers into strings
 homo_distrib_list = ";".join(homo_distrib_list)
 mean_rd_homo_distrib_list = ";".join(mean_rd_homo_distrib_list)
-df = pd.DataFrame(columns =['name', 'seq_length', 'nucleotide', 'starting_position', 'relative_position', 'max_size', "nb", 'mean_size', "homopol_freq_according_to_size", str(n) + "_mean_rd_freq_according_to_size"])
-df.loc[0] = [name, length, nuc_max_list, pos_max_list, homopoly_rel_pos_list, size_max_list, homopoly_nb, mean_size, homo_distrib_list, mean_rd_homo_distrib_list]
+df = pd.DataFrame(columns =['name', 'seq_length', 'max_size', 'nucleotide', 'starting_position', 'relative_position', "nb", 'mean_size', "homopol_freq_according_to_size", str(n) + "_mean_rd_freq_according_to_size"])
+df.loc[0] = [name, length, size_max_list, nuc_max_list, pos_max_list, homopoly_rel_pos_list, homopoly_nb, mean_size, homo_distrib_list, mean_rd_homo_distrib_list]
 # name: name of the sequence
 # seq_length: length of the sequence
 # nucleotid: nuc of the homopolymer

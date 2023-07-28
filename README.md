@@ -30,6 +30,24 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 
 
 <br /><br />
+## WARNING
+
+The algorithm works as if it splits the input sequence according to homopolymers and then returns the info. Example with the input sequence ATTTAAGCGGG:
+<br />
+A
+<br />
+TTT
+<br />
+AA
+<br />
+G
+<br />
+C
+<br />
+GGG
+
+
+<br /><br />
 ## CONTENT
 
 | File or folder | Description |
@@ -41,112 +59,141 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 
 
 <br /><br />
+## INPUT
+
+A fasta file
+
+
+<br /><br />
 ## HOW TO RUN
 
-### Local
+### 1. Prerequisite
 
-```bash
-nextflow run main.nf
-```
+Installation of:<br />
+[nextflow DSL2](https://github.com/nextflow-io/nextflow)<br />
+[Graphviz](https://www.graphviz.org/download/), `sudo apt install graphviz` for Linux ubuntu<br />
+[Singularity/apptainer](https://github.com/apptainer/apptainer)<br />
 
-
-### Using the committed version on gitlab:
-
-1) Create the scm file:
-
-```bash
-providers {
-    pasteur {
-        server = 'https://gitlab.pasteur.fr'
-        platform = 'gitlab'
-    }
-}
-```
-
-And save it as 'scm' in the .nextflow folder. For instance in:
-\\wsl$\Ubuntu-20.04\home\gael\.nextflow
-
-Warning: ssh key must be set for gitlab, to be able to use this procedure.
+<br /><br />
+### 2. Local running (personal computer)
 
 
-2) Mount a server if required:
+#### 2.1. homopolymer.nf file in the personal computer
 
-```bash
-DRIVE="C"
-sudo mkdir /mnt/share
-sudo mount -t drvfs $DRIVE: /mnt/share
-```
+- Mount a server if required:
 
-Warning: if no mounting, it is possible that nextflow does nothing, or displays a message like
-```
-Launching `main.nf` [loving_morse] - revision: d5aabe528b
+<pre>
+DRIVE="Z"
+sudo mkdir /mnt/z
+sudo mount -t drvfs $DRIVE: /mnt/z
+</pre>
+
+Warning: if no mounting, it is possible that nextflow does nothing, or displays a message like:
+<pre>
+Launching `homopolymer.nf` [loving_morse] - revision: d5aabe528b
 /mnt/share/Users
-```
+</pre>
 
+- Run the following command from where the homopolymer.nf and nextflow.config files are (example: \\wsl$\Ubuntu-20.04\home\gael):
 
-3) Then run the following command from where the .nextflow folder is (see above):
+<pre>
+nextflow run homopolymer.nf -c nextflow.config
+</pre>
 
-```bash
+with -c to specify the name of the config file used.
+
+<br /><br />
+#### 2.3. homopolymer.nf file in the public gitlab repository
+
+Run the following command from where you want the results:
+
+<pre>
 nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0
+</pre>
+
+<br /><br />
+### 3. Distant running (example with the Pasteur cluster)
+
+#### 3.1. Pre-execution
+
+Copy-paste this after having modified the EXEC_PATH variable:
+
+<pre>
+EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/homopolymer" # where the bin folder of the homopolymer.nf script is located
+export CONF_BEFORE=/opt/gensoft/exe # on maestro
+
+export JAVA_CONF=java/13.0.2
+export JAVA_CONF_AFTER=bin/java # on maestro
+export SINGU_CONF=apptainer/1.1.5
+export SINGU_CONF_AFTER=bin/singularity # on maestro
+export GIT_CONF=git/2.39.1
+export GIT_CONF_AFTER=bin/git # on maestro
+export GRAPHVIZ_CONF=graphviz/2.42.3
+export GRAPHVIZ_CONF_AFTER=bin/graphviz # on maestro
+
+MODULES="${CONF_BEFORE}/${JAVA_CONF}/${JAVA_CONF_AFTER},${CONF_BEFORE}/${SINGU_CONF}/${SINGU_CONF_AFTER},${CONF_BEFORE}/${GIT_CONF}/${GIT_CONF_AFTER}/${GRAPHVIZ_CONF}/${GRAPHVIZ_CONF_AFTER}"
+cd ${EXEC_PATH}
+# chmod 755 ${EXEC_PATH}/bin/*.* # not required if no bin folder
+module load ${JAVA_CONF} ${SINGU_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
+</pre>
+
+<br /><br />
+#### 3.2. homopolymer.nf file in a cluster folder
+
+Modify the second line of the code below, and run from where the homopolymer.nf and nextflow.config files are (which has been set thanks to the EXEC_PATH variable above):
+
+<pre>
+HOME_INI=$HOME
+HOME="${ZEUSHOME}/homopolymer/" # $HOME changed to allow the creation of .nextflow into /$ZEUSHOME/homopolymer/, for instance. See NFX_HOME in the nextflow software script
+trap '' SIGINT
+nextflow run --modules ${MODULES} homopolymer.nf -c nextflow.config
+HOME=$HOME_INI
+trap SIGINT
+</pre>
+
+<br /><br />
+#### 3.3. homopolymer.nf file in the public gitlab repository
+
+Modify the first and third lines of the code below, and run (results will be where the EXEC_PATH variable has been set above):
+
+<pre>
+VERSION="v1.0"
+HOME_INI=$HOME
+HOME="${ZEUSHOME}/homopolymer/" # $HOME changed to allow the creation of .nextflow into /$ZEUSHOME/homopolymer/, for instance. See NFX_HOME in the nextflow software script
+trap '' SIGINT
+nextflow run --modules ${MODULES} -hub pasteur gmillot/homopolymer -r $VERSION -c $HOME/nextflow.config
+HOME=$HOME_INI
+trap SIGINT
+</pre>
+
+<br /><br />
+### 4. Error messages and solutions
+
+#### Message 1
+```
+Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
 ```
 
-If an error message appears, like:
+Purge using:
+<pre>
+rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
+</pre>
+
+#### Message 2
 ```
 WARN: Cannot read project manifest -- Cause: Remote resource not found: https://gitlab.pasteur.fr/api/v4/projects/gmillot%2Fhomopolymer
 ```
-Make the distant repo public
 
-If an error message appears, like:
+Contact Gael Millot (distant repository is not public).
+
+#### Message 3
 
 ```
 permission denied
 ```
 
-Use chmod to change the executable authorizations, including those in the bin folder.
+Use chmod to change the user rights.
 
-
-### Using a cluster
-
-Start with:
-
-```bash
-EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/homopolymer" # where the bin folder of the main.nf script is located
-export CONF_BEFORE=/opt/gensoft/exe # on maestro
-
-export JAVA_CONF=java/13.0.2
-export JAVA_CONF_AFTER=bin/java # on maestro
-export SINGU_CONF=singularity/3.8.3
-export SINGU_CONF_AFTER=bin/singularity # on maestro
-export GIT_CONF=git/2.25.0
-export GIT_CONF_AFTER=bin/git # on maestro
-export GRAPHVIZ_CONF=graphviz/2.42.3
-export GRAPHVIZ_CONF_AFTER=bin/graphviz # on maestro
-
-MODULES="${CONF_BEFORE}/${JAVA_CONF}/${JAVA_CONF_AFTER},${CONF_BEFORE}/${SINGU_CONF}/${SINGU_CONF_AFTER},${CONF_BEFORE}/${GIT_CONF}/${GIT_CONF_AFTER},${CONF_BEFORE}/${GRAPHVIZ_CONF}/${GRAPHVIZ_CONF_AFTER}"
-# cd ${EXEC_PATH} # not required when using the gitlab repo to run the script
-# chmod 755 ${EXEC_PATH}/bin/*.* # not required when using the gitlab repo to run the script
-module load ${JAVA_CONF} ${SINGU_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
-
-```
-
-Then run:
-
-```bash
-# distant main.nf file
-HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} -hub pasteur gmillot/homopolymer -r v7.10.0 -c $HOME/nextflow.config ; HOME="/pasteur/appa/homes/gmillot/"
-
-# local main.nf file ($HOME changed to allow the creation of .nextflow into /$ZEUSHOME/homopolymer/. See NFX_HOME in the nextflow soft script)
-HOME="$ZEUSHOME/homopolymer/" ; nextflow run --modules ${MODULES} main.nf ; HOME="/pasteur/appa/homes/gmillot/"
-```
-
-If an error message appears, like:
-```
-Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
-```
-Purge using:
-```
-rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
-```
 
 <br /><br />
 ## OUTPUT
@@ -164,39 +211,43 @@ rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
 
 | Column | Description |
 | --- | --- |
-| **name** | name of the sequence |
-| **seq_length** | nb of bases in the sequence |
-| **nucleotide** | nucleotide of the homopolymer of max size |
-| **starting_position** | position of the first nucleotide of the homopolymer of max size |
-| **relative_position** | relative position of the starting_position value when the first base of the sequence is 0 and the last one is 1. The formula used is y = (starting_position - 1) / (seq_length - max_size) to get 0 <= y <= 1) |
-| **max_size** | number of times the nucleotide is repeated in the homopolymer (homopolymer length) |
-| **nb** | number of homopolymers in the sequence (not considering the homopolymers below the min_length parameter in the nextflow.config file) |
-| **mean_size** | average homopolymer size in the sequence (not considering the homopolymers below the min_length parameter in the nextflow.config file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole sequence length) |
-| **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator) |
-| **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator) |
+| **name** | name of the input sequence of the batch |
+| **seq_length** | nb of bases in the input sequence |
+| **max_homopol_size** | number of times the nucleotide is repeated in the longest homopolymer (i.e., length, not considering the homopolymers below the **min_length** parameter). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **nucleotide** | nucleotide of the homopolymer of **max_homopol_size** (not considering the homopolymers below the **min_length** parameter). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **starting_position** | position of the first nucleotide of the homopolymer of **max_homopol_size** (not considering the homopolymers below the **min_length** parameter). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **relative_position** | relative position of the **starting_position** value in the input sequence when the first base of the sequence is 0 and the last one is 1. The formula used is y = 0 if **seq_length** is 1 and y = (starting_position - 1) / seq_length otherwise, to get y between 0 and (starting_position - 1) / seq_length (i.e., not 1). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **nb** | number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file) |
+| **mean_size** | average homopolymer size among the number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole input sequence length) |
+| **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
+| **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
 
-If several longest homopolymers in a sequence, results are semi-colon separated in each cell.
+
 
 <br />
 barplot_stat.tsv
 
+From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
+
 | Column | Description |
 | --- | --- |
 | **length** | homopolymer length |
-| **freq** | frequency |
+| **freq** | frequency (sum of all the homopolymer numbers of size **length** in all the input sequences |
 | **kind** | observed or random (theoretical) homopolymers |
 
 <br />
 scatterplot_stat.tsv
 
+From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
+
 | Column | Description |
 | --- | --- |
 | **length** | homopolymer length |
 | **kind** | observed or random (theoretical) homopolymers |
-| **mean** | frequency mean along all the sequences of the batch |
-| **sd** | frequency standard deviation along all the sequences of the batch |
-| **CI95.inf** | 95% lower Confidence Interval of the mean |
-| **CI95.sup** | 5% upper Confidence Interval of the mean |
+| **mean** | frequency mean along all the sequences of the batch (sum of the number of homopolymers of size **categ** in each input sequence) / (number of sequences) |
+| **sd** | frequency standard deviation along all the sequences of the batch (sd of the corresponding  **mean**) |
+| **CI95.inf** | 95% lower Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
+| **CI95.sup** | 5% upper Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
 
 <br />
 t_test.tsv: the t test table displayed in the report.html file
