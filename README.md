@@ -33,7 +33,9 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 <br /><br />
 ## WARNING
 
-The algorithm works as if it splits the input sequence according to homopolymers and then returns the info. Example with the input sequence ATTTAAGCGGG:
+The algorithm works as if it splits the input sequence according to homopolymers and then returns the info.
+
+Example with the input sequence ATTTAAGCGGG:
 <br />
 A
 <br />
@@ -208,7 +210,7 @@ Use chmod to change the user rights.
 
 **files** folder containing the following files
 
-### *<FILE_NAME>*_homopol_summary.tsv
+#### *<FILE_NAME>*_homopol_summary.tsv
 
 | Column | Description |
 | --- | --- |
@@ -225,8 +227,7 @@ Use chmod to change the user rights.
 
 
 
-<br />
-### boxplot_stat.tsv
+#### boxplot_stat.tsv
 <br /><br />
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
 
@@ -236,8 +237,8 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **freq** | frequency (sum of all the homopolymer numbers of size **length** in all the input sequences |
 | **kind** | observed or random (theoretical) homopolymers |
 
-<br />
-### scatterplot_stat.tsv
+
+#### scatterplot_stat.tsv
 <br /><br />
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
 
@@ -250,8 +251,8 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **CI95.inf** | 95% lower Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
 | **CI95.sup** | 5% upper Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
 
-<br />
-### t_test.tsv: the t test table displayed in the report.html file
+
+#### t_test.tsv: the t test table displayed in the report.html file
 
 | Column | Description |
 | --- | --- |
@@ -265,7 +266,7 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **p.value** | p value |
 | **BH.adj.p.value** | Benjamini Hochberg adjusted p values along all the t tests performed |
 
-<br />
+
 ### graph_stat.RData
 <br /><br />
 .RData file containing all the objects used to make the report.html, that can be reused if necessary.
