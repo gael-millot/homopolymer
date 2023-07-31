@@ -231,7 +231,7 @@ Warning: columns takes into account the **min_length** parameter in the **nextfl
 
 - boxplot_stat.tsv
 
-From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
+From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file
 
 | Column | Description |
 | --- | --- |
@@ -243,7 +243,7 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 
 - scatterplot_stat.tsv
 
-From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
+From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file
 
 | Column | Description |
 | --- | --- |
@@ -262,7 +262,7 @@ the t test table displayed in the report.html file
 
 | Column | Description |
 | --- | --- |
-| **categ** | homopolymer length |
+| **length** | homopolymer length |
 | **obs.mean** | mean of the observed homopolymers in the batch of sequences |
 | **theo.mean** | mean of the random homopolymers |
 | **obs.sd** | standard deviation of the observed homopolymers in the batch of sequences |
@@ -316,6 +316,11 @@ Gitlab developers
 
 <br /><br />
 ## WHAT'S NEW IN
+
+### v4.1
+
+Boxplots modified
+
 
 ### v4.0
 

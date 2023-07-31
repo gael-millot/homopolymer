@@ -500,15 +500,17 @@ png(filename = paste0("boxplot_", file_name, ".png"), width = 5000, height = 180
 if(nrow(final3.prop) > 0){
     tempo <- fun_gg_boxplot(
         data1 = final3.prop, # res # res[res$KIND == "obs.freq", ]
-        categ = c("graph.length", "kind"),  
+        categ = c("graph.length", "kind"), 
         y = "freq", 
         legend.width = 0.2, 
         title = "", 
         x.lab = "Homopolymer length", 
         y.top.extra.margin = 0.05, 
         y.bottom.extra.margin = 0, 
+        box.whisker.kind = "std",
         y.lab = "Proportion", 
         y.log = "no", 
+        stat.mean = TRUE, 
         y.second.tick.nb = 5, 
         text.size = 24, 
         title.text.size = 16,

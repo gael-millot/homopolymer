@@ -185,7 +185,7 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
     echo -e "\\n\\n<br /><br />\\n\\n#### Boxplot\\n\\n<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 2: Proportions of homopolymer lengths.](./figures/boxplot_${file_name}.png){width=600}
+![Figure 2: Proportions of homopolymer lengths: diamond, mean; whiskers, 1.5 x Inter Quartile Range; horizontal bars, quartiles; number at the top, mean.](./figures/boxplot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
     echo -e "\n\\n<br /><br />\\n\\nMain values of the boxplot (see also the [boxplot_stat.tsv](./files/) file)" >> report.rmd
