@@ -514,8 +514,8 @@ if(nrow(final3.prop) > 0){
         title.text.size = 16,
         return = TRUE
     )
-    tempo <- tempo[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
-    write.table(as.matrix(tempo$stat), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+    stats <- tempo$stat[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
+    write.table(as.matrix(stats), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
     write.table("", file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")

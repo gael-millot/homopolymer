@@ -208,9 +208,9 @@ Use chmod to change the user rights.
 
 **figures** folder containing all the figures in the **report.html** in the .png format
 
-**files** folder containing the following files
+**files** folder containing the following files:
 
-#### homopol_summary.tsv
+- homopol_summary.tsv
 
 Warning: columns takes into account the **min_length** parameter in the **nextflow.config** file, meaning that the results are only for homopolymer lengths equal or above **min_length**. But, the two **homopol_obs_distrib** and **homopol_theo_distrib** columns provides the distribution of all the polymers, whatever **min_length**.
 <br /><br />
@@ -226,10 +226,9 @@ Warning: columns takes into account the **min_length** parameter in the **nextfl
 | **mean_size** | average homopolymer size among the number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole input sequence length) |
 | **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
 | **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
+<br /><br />
 
-
-
-#### boxplot_stat.tsv
+- boxplot_stat.tsv
 
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
 
@@ -238,9 +237,9 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **length** | homopolymer length |
 | **freq** | frequency (sum of all the homopolymer numbers of size **length** in all the input sequences |
 | **kind** | observed or random (theoretical) homopolymers |
+<br /><br />
 
-
-#### scatterplot_stat.tsv
+- scatterplot_stat.tsv
 
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
 
@@ -252,9 +251,9 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **sd** | frequency standard deviation along all the sequences of the batch (sd of the corresponding  **mean**) |
 | **CI95.inf** | 95% lower Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
 | **CI95.sup** | 5% upper Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
+<br /><br />
 
-
-#### t_test.tsv
+- t_test.tsv
 
 the t test table displayed in the report.html file
 
@@ -264,15 +263,15 @@ the t test table displayed in the report.html file
 | **obs.mean** | mean of the observed homopolymers in the batch of sequences |
 | **theo.mean** | mean of the random homopolymers |
 | **obs.sd** | standard deviation of the observed homopolymers in the batch of sequences |
-| **theo.sd ** | standard deviation of the random homopolymers |
+| **theo.sd** | standard deviation of the random homopolymers |
 | **df** | degree of freedom of the t test |
 | **t** | t test statistics |
 | **p.value** | p value |
 | **BH.adj.p.value** | Benjamini Hochberg adjusted p values along all the t tests performed |
-
-
-### graph_stat.RData
 <br /><br />
+
+- graph_stat.RData
+
 .RData file containing all the objects used to make the report.html, that can be reused if necessary.
 
 <br /><br />

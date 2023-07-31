@@ -166,7 +166,7 @@ process graph_stat {
 ![Figure 1: Proportions of homopolymer lengths.](./figures/plot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nMain values of the dot plot" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nMain values of the dot plot (see also the [scatterplot_stat.tsv](./files/) file)" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/scatterplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
@@ -174,7 +174,7 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 \\`\\`\\`
     \n\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nT test "Obs versus Theo" for each homopolymer length" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nT test \"Obs versus Theo\" for each homopolymer length (see also the [t_test.tsv](./files/) file)" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/t_test.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
@@ -188,7 +188,7 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 ![Figure 2: Proportions of homopolymer lengths.](./figures/boxplot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nMain values of the boxplot" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nMain values of the boxplot (see also the [boxplot_stat.tsv](./files/) file)" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/boxplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
