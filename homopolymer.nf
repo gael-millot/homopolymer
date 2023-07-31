@@ -158,7 +158,7 @@ process graph_stat {
     graph_stat.R "${tsv}" "${file_name}" "${cute_path}" "graph_stat_report.txt"
 
     echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
-    echo -e "The minimal length of polymer considered is: ${min_length}\\n\\nRandomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
+    echo -e "The minimal polymer length of ${min_length}, set in the min_lenght paremeter of the nextflow.config file, is for the homopol_summary.tsv file only (except the two last columns of this file).\\n\\nRandomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
     echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br /><br />\\n\\n" >> report.rmd
     echo -e "Each dot is a value obtained for one sequence." >> report.rmd
     echo -e "
@@ -174,7 +174,7 @@ kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, cap
 \\`\\`\\`
     \n\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nObs versus Theo t test for each homopolymer length" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\nT test "Obs versus Theo" for each homopolymer length" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/t_test.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 

@@ -210,17 +210,19 @@ Use chmod to change the user rights.
 
 **files** folder containing the following files
 
-#### *<FILE_NAME>*_homopol_summary.tsv
+#### homopol_summary.tsv
 
+Warning: columns takes into account the **min_length** parameter in the **nextflow.config** file, meaning that the results are only for homopolymer lengths equal or above **min_length**. But, the two **homopol_obs_distrib** and **homopol_theo_distrib** columns provides the distribution of all the polymers, whatever **min_length**.
+<br /><br />
 | Column | Description |
 | --- | --- |
 | **name** | name of the input sequence of the batch |
 | **seq_length** | nb of bases in the input sequence |
-| **max_homopol_size** | number of times the nucleotide is repeated in the longest homopolymer (i.e., length, not considering the homopolymers below the **min_length** parameter). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **nucleotide** | nucleotide of the homopolymer of **max_homopol_size** (not considering the homopolymers below the **min_length** parameter). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **starting_position** | position of the first nucleotide of the homopolymer of **max_homopol_size** (not considering the homopolymers below the **min_length** parameter). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **max_homopol_size** | number of times the nucleotide is repeated in the longest homopolymer (i.e., length). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **nucleotide** | nucleotide of the homopolymer of **max_homopol_size**. If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
+| **starting_position** | position of the first nucleotide of the homopolymer of **max_homopol_size**. If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
 | **relative_position** | relative position of the **starting_position** value in the input sequence when the first base of the sequence is 0 and the last one is 1. The formula used is y = 0 if **seq_length** is 1 and y = (starting_position - 1) / seq_length otherwise, to get y between 0 and (starting_position - 1) / seq_length (i.e., not 1). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **nb** | number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file) |
+| **nb** | number of consecutive homopolymers in the input sequence |
 | **mean_size** | average homopolymer size among the number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole input sequence length) |
 | **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
 | **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
@@ -228,7 +230,7 @@ Use chmod to change the user rights.
 
 
 #### boxplot_stat.tsv
-<br /><br />
+
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
 
 | Column | Description |
@@ -239,7 +241,7 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 
 
 #### scatterplot_stat.tsv
-<br /><br />
+
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_NAME>*_homopol_summary.tsv file
 
 | Column | Description |
@@ -252,7 +254,9 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **CI95.sup** | 5% upper Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
 
 
-#### t_test.tsv: the t test table displayed in the report.html file
+#### t_test.tsv
+
+the t test table displayed in the report.html file
 
 | Column | Description |
 | --- | --- |
@@ -309,6 +313,11 @@ Gitlab developers
 
 <br /><br />
 ## WHAT'S NEW IN
+
+### v4.0
+
+Completemy rewritten
+
 
 ### v3.2
 

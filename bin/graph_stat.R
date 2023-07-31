@@ -445,6 +445,7 @@ for(i0 in unique(sort(final3.prop$graph.length))){
     p.value.prop <- c(p.value.prop, t.test.tempo.prop$p.value)
 }
 p.mult.prop <- data.frame(categ.prop, obs.mean.prop, theo.mean.prop, obs.sd.prop, theo.sd.prop, df.prop, t.prop, p.value.prop, BH.adj.p.value = p.adjust(p.value.prop, method = "BH"))
+names(p.mult.prop) <- c("length", "obs_mean", "theo_mean", "obs_sd", "theo_sd", "df", "t", "p.value", "BH.adj.p.value")
 write.table(p.mult.prop, file = paste0("./t_test.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 # end data for prop t.test
 
@@ -513,6 +514,7 @@ if(nrow(final3.prop) > 0){
         title.text.size = 16,
         return = TRUE
     )
+    tempo <- tempo[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
     write.table(as.matrix(tempo$stat), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
