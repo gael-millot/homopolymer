@@ -226,6 +226,7 @@ Warning: columns takes into account the **min_length** parameter in the **nextfl
 | **mean_size** | average homopolymer size among the number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole input sequence length) |
 | **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
 | **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
+
 <br /><br />
 
 - boxplot_stat.tsv
@@ -237,6 +238,7 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **length** | homopolymer length |
 | **freq** | frequency (sum of all the homopolymer numbers of size **length** in all the input sequences |
 | **kind** | observed or random (theoretical) homopolymers |
+
 <br /><br />
 
 - scatterplot_stat.tsv
@@ -251,6 +253,7 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the *<FILE_
 | **sd** | frequency standard deviation along all the sequences of the batch (sd of the corresponding  **mean**) |
 | **CI95.inf** | 95% lower Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
 | **CI95.sup** | 5% upper Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
+
 <br /><br />
 
 - t_test.tsv
@@ -268,6 +271,7 @@ the t test table displayed in the report.html file
 | **t** | t test statistics |
 | **p.value** | p value |
 | **BH.adj.p.value** | Benjamini Hochberg adjusted p values along all the t tests performed |
+
 <br /><br />
 
 - graph_stat.RData
