@@ -468,7 +468,7 @@ if(nrow(final3.prop) > 0){
         geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
         line.size = list(NULL, 2, 1, 1), 
         color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
-        dot.size = 4, 
+        dot.size = 2, 
         dot.shape = 21, 
         dot.border.size = 0.5, 
         dot.border.color = NULL, 
@@ -477,6 +477,7 @@ if(nrow(final3.prop) > 0){
         legend.width = 0.2, 
         legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
         title = "", 
+        x.tick.nb = length(unique(stat.prop$length)),
         x.lab = "Homopolymer length", 
         x.left.extra.margin = 0.05, 
         y.top.extra.margin = 0.05, 
@@ -502,6 +503,7 @@ if(nrow(final3.prop) > 0){
         data1 = final3.prop, # res # res[res$KIND == "obs.freq", ]
         categ = c("graph.length", "kind"), 
         y = "freq", 
+        dot.size = 2, 
         legend.width = 0.2, 
         title = "", 
         x.lab = "Homopolymer length", 
@@ -511,17 +513,91 @@ if(nrow(final3.prop) > 0){
         y.lab = "Proportion", 
         y.log = "no", 
         stat.mean = TRUE, 
+        stat.angle = 90, 
         y.second.tick.nb = 5, 
         text.size = 24, 
         title.text.size = 16,
         return = TRUE
     )
     stats <- tempo$stat[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
+    stats$OUTLIERS <- unlist(lapply(stats$OUTLIERS, FUN = function(x){paste(x, collapse = ",")}))
     write.table(as.matrix(stats), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
     write.table("", file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }
+
+
+png(filename = paste0("plot_", file_name, "_log10.png"), width = 5000, height = 1800, units = "px", res = 300)
+if(nrow(final3.prop) > 0){
+    fun_gg_scatter(
+        data1 = list(final3.prop, stat.prop, stat.prop, stat.prop), # res # res[res$KIND == "obs.freq", ]
+        x = list("length", "length", "length", "length"), 
+        y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
+        categ = list("kind", "kind", "kind", "kind"), 
+        geom = list("geom_point", "geom_line", "geom_line", "geom_line"), 
+        line.size = list(NULL, 2, 1, 1), 
+        color = list(fun_gg_palette(n = 2, kind = "dark")[c(1, 2)], fun_gg_palette(n = 2, kind = "std")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)], fun_gg_palette(n = 2, kind = "light")[c(1, 2)]), # fun_gg_palette(n = 2) # fun_gg_palette(n = 2)[1]
+        dot.size = 2, 
+        dot.shape = 21, 
+        dot.border.size = 0.5, 
+        dot.border.color = NULL, 
+        alpha = list(0.1, 0.5, 0.5, 0.5), 
+        line.type = "solid",
+        legend.width = 0.2, 
+        legend.name = list("Kind", "Means", "Lower CI95", "Upper CI95"), 
+        title = "", 
+        x.tick.nb = length(unique(stat.prop$length)),
+        x.lab = "Homopolymer length", 
+        x.left.extra.margin = 0.05, 
+        y.top.extra.margin = 0.05, 
+        y.bottom.extra.margin = 0, 
+        x.right.extra.margin = 0.05, 
+        x.second.tick.nb = NULL, 
+        y.lab = "Proportion", 
+        y.log = "log10", 
+        y.second.tick.nb = 5, 
+        text.size = 24, 
+        title.text.size = 16
+    )
+}else{
+    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+}
+
+
+png(filename = paste0("boxplot_", file_name, "_log10.png"), width = 5000, height = 1800, units = "px", res = 300)
+# tempo <- data.frame(length = c((1:length(obs2.prop)) - 0.1, (1:length(obs2)) + 0.1), freq = c(obs2.prop, theo2.prop), kind = rep(c("obs", "theo"), each = length(obs2.prop)))
+# write.table(tempo, file = paste0("./boxplot.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+if(nrow(final3.prop) > 0){
+    tempo.log <- fun_gg_boxplot(
+        data1 = final3.prop, # res # res[res$KIND == "obs.freq", ]
+        categ = c("graph.length", "kind"), 
+        y = "freq", 
+        dot.size = 2, 
+        legend.width = 0.2, 
+        title = "", 
+        x.lab = "Homopolymer length", 
+        y.top.extra.margin = 0.05, 
+        y.bottom.extra.margin = 0, 
+        box.whisker.kind = "std",
+        y.lab = "Proportion", 
+        y.log = "log10", 
+        stat.mean = TRUE, 
+        stat.angle = 90, 
+        y.second.tick.nb = 5, 
+        text.size = 24, 
+        title.text.size = 16,
+        return = TRUE
+    )
+    log.stats <- tempo.log$stat[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
+    log.stats$OUTLIERS <- unlist(lapply(log.stats$OUTLIERS, FUN = function(x){paste(x, collapse = ",")}))
+    write.table(as.matrix(stats), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+}else{
+    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+    write.table("", file = paste0("./boxplot_stat_log.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+}
+
+
 
 
 

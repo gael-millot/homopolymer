@@ -258,7 +258,7 @@ else:
 n = 10000 # number of random samplings
 sum_rd_homo_distrib_list = [0] * length
 for i0 in list(range(1, n)):
-    tempo_seq=''.join(random.sample(seq, len(seq)))
+    tempo_seq=''.join(random.sample(seq, len(seq))) # shuffle the single nuc of seq and return a list, which is then joined
     x1, x2, x3, x4, tempo_homo_distrib_list = homopoly_detect(sequence = tempo_seq, mini = 1)  # Warning: here min = 1 and not min_length because we only want the distrib of the homopolymers
     sum_rd_homo_distrib_list = [x + y for x, y in zip(sum_rd_homo_distrib_list, tempo_homo_distrib_list)]
 

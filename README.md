@@ -317,6 +317,11 @@ Gitlab developers
 <br /><br />
 ## WHAT'S NEW IN
 
+### v4.2
+
+Plot and html report modified
+
+
 ### v4.1
 
 Boxplots modified

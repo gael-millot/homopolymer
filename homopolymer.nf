@@ -159,39 +159,31 @@ process graph_stat {
 
     echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
     echo -e "The minimal polymer length of ${min_length}, set in the min_lenght paremeter of the nextflow.config file, is for the homopol_summary.tsv file only (except the two last columns of this file).\\n\\nRandomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
-    echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br /><br />\\n\\n" >> report.rmd
-    echo -e "Each dot is a value obtained for one sequence." >> report.rmd
+    echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br />" >> report.rmd
+    echo -e "Each dot is a value obtained for one sequence.<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 1: Proportions of homopolymer lengths.](./figures/plot_${file_name}.png){width=600}
+![Figure 1: Proportions of homopolymer lengths. See the [scatterplot_stat.tsv](./files/) file for values](./figures/plot_${file_name}.png){width=600}
+\\n\\n</center>\\n\\n
+\\n\\n</center>\\n\\n
+![Figure 2: Proportions of homopolymer lengths (log10)](./figures/plot_${file_name}_log10.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nMain values of the dot plot (see also the [scatterplot_stat.tsv](./files/) file)" >> report.rmd
-    echo "
-\\`\\`\\`{r, echo = FALSE}
-tempo <- read.table('./files/scatterplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
-kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
-\\`\\`\\`
-    \n\n
+    echo -e "\\n\\n<br /><br />\\n\\n#### Boxplot plot\\n\\n<br />" >> report.rmd
+    echo -e "Each dot is a value obtained for one sequence.<br /><br />\\n\\n" >> report.rmd
+    echo -e "
+\\n\\n</center>\\n\\n
+![Figure 3: Proportions of homopolymer lengths: diamond, mean; whiskers, 1.5 x Inter Quartile Range; horizontal bars, quartiles; number at the top, mean. See the [boxplot_stat.tsv](./files/) file for values](./figures/boxplot_${file_name}.png){width=600}
+\\n\\n</center>\\n\\n
+\\n\\n</center>\\n\\n
+![Figure 4: Proportions of homopolymer lengths (log10)](./figures/boxplot_${file_name}_log10.png){width=600}
+\\n\\n</center>\\n\\n
     " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nT test \"Obs versus Theo\" for each homopolymer length (see also the [t_test.tsv](./files/) file)" >> report.rmd
+    echo -e "\n\\n<br /><br />\\n\\n#### T test \"Obs versus Theo\" for each homopolymer length (see also the [t_test.tsv](./files/) file)<br />\\n\\n" >> report.rmd
+    echo -e "See also the [t_test.tsv](./files/) file.<br />\\n\\n" >> report.rmd
     echo "
 \\`\\`\\`{r, echo = FALSE}
 tempo <- read.table('./files/t_test.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
-kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
-\\`\\`\\`
-    \n\n
-    " >> report.rmd
-    echo -e "\\n\\n<br /><br />\\n\\n#### Boxplot\\n\\n<br /><br />\\n\\n" >> report.rmd
-    echo -e "
-\\n\\n</center>\\n\\n
-![Figure 2: Proportions of homopolymer lengths: diamond, mean; whiskers, 1.5 x Inter Quartile Range; horizontal bars, quartiles; number at the top, mean.](./figures/boxplot_${file_name}.png){width=600}
-\\n\\n</center>\\n\\n
-    " >> report.rmd
-    echo -e "\n\\n<br /><br />\\n\\nMain values of the boxplot (see also the [boxplot_stat.tsv](./files/) file)" >> report.rmd
-    echo "
-\\`\\`\\`{r, echo = FALSE}
-tempo <- read.table('./files/boxplot_stat.tsv', header = TRUE, colClasses = 'character', sep = '\\t', check.names = FALSE) ; 
 kableExtra::kable_styling(knitr::kable(tempo, row.names = FALSE, digits = 2, caption = NULL, format='html'), c('striped', 'bordered', 'responsive', 'condensed'), font_size=10, full_width = FALSE, position = 'left')
 \\`\\`\\`
     \n\n
