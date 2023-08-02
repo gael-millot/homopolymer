@@ -160,7 +160,7 @@ process graph_stat {
     echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
     echo -e "The minimal polymer length of ${min_length}, set in the min_lenght paremeter of the nextflow.config file, is for the homopol_summary.tsv file only (except the two last columns of this file).\\n\\nRandomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
     echo -e "\\n\\n<br /><br />\\n\\n#### Dot plot\\n\\n<br />" >> report.rmd
-    echo -e "Each dot is a value obtained for one sequence.<br /><br />\\n\\n" >> report.rmd
+    echo -e "Each dot is a value obtained for one sequence.<br />See the [plot_raw_values.tsv](./files/) file for the plot raw values.<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
 ![Figure 1: Proportions of homopolymer lengths. See the [scatterplot_stat.tsv](./files/) file for values](./figures/plot_${file_name}.png){width=600}

@@ -390,8 +390,14 @@ stat.prop <- aggregate(final3.prop$freq, by = list(final3.prop$length, final3.pr
 names(stat.prop) <- c("length", "kind", "mean")
 stat2.prop <- aggregate(final3.prop$freq, by = list(final3.prop$length, final3.prop$kind), FUN = sd)
 stat.prop <- data.frame(stat.prop, sd = stat2.prop$x, CI95.inf = stat.prop$mean - 1.96 * stat2.prop$x, CI95.sup = stat.prop$mean + 1.96 * stat2.prop$x)
-write.table(stat.prop, file = paste0("./scatterplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+write.table(stat.prop, file = "./scatterplot_stat.tsv", row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 final3.prop$graph.length <- sprintf("%02.0f", final3.prop$length)
+
+tempo <- final3.prop
+tempo <- tempo[1:4]
+names(tempo) <- c("prop", "length", "gene_name", "kind")
+write.table(as.matrix(tempo), file = "./plot_raw_values.tsv", row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+
 # end data for prop barplot and scatterplot
 
 
@@ -519,9 +525,10 @@ if(nrow(final3.prop) > 0){
         title.text.size = 16,
         return = TRUE
     )
-    stats <- tempo$stat[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
+    stats <- tempo$stat[, c("kind", "graph.length", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
     stats$OUTLIERS <- unlist(lapply(stats$OUTLIERS, FUN = function(x){paste(x, collapse = ",")}))
-    write.table(as.matrix(stats), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+    names(stats)[names(stats) == "graph.length"] <- "length"
+    write.table(as.matrix(stats), file = paste0("./boxplot_stat_log.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
     write.table("", file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
@@ -589,12 +596,8 @@ if(nrow(final3.prop) > 0){
         title.text.size = 16,
         return = TRUE
     )
-    log.stats <- tempo.log$stat[, c("BOX", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
-    log.stats$OUTLIERS <- unlist(lapply(log.stats$OUTLIERS, FUN = function(x){paste(x, collapse = ",")}))
-    write.table(as.matrix(stats), file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }else{
     fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
-    write.table("", file = paste0("./boxplot_stat_log.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }
 
 

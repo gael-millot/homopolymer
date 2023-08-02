@@ -256,6 +256,21 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol
 
 <br /><br />
 
+- plot_raw_values.tsv
+
+From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file. 
+<br />
+Each line is a proportion of one polymer length in one sequence. The total nomber of rows should be: number of different homopolymer lengths x number of sequences x number of kind
+
+| Column | Description |
+| --- | --- |
+| **prop** | proportion of one polymer length in one sequence |
+| **length** | homopolymer length |
+| **gene_name** | name of the sequence |
+| **kind** | observed or random (theoretical) homopolymers |
+
+<br /><br />
+
 - t_test.tsv
 
 the t test table displayed in the report.html file
@@ -316,6 +331,11 @@ Gitlab developers
 
 <br /><br />
 ## WHAT'S NEW IN
+
+### v4.3
+
+plot_raw_values.tsv file added and boxplot_stat_log.tsv file modified
+
 
 ### v4.2
 
