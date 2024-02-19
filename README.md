@@ -35,7 +35,7 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 
 The algorithm works as if it splits the input sequence according to homopolymers and then returns the info.
 
-Example with the input sequence ATTTAAGCGGG:
+With the input sequence ATTTAAGCGGG, the homopolymers are:
 <br />
 A
 <br />
@@ -55,16 +55,18 @@ GGG
 
 | File or folder | Description |
 | --- | --- |
-| **homopolymer.nf** | File that can be executed using a CLI (command line interface)
-| **nextflow.config** | Parameter settings for the homopolymer.nf file |
-| **dataset** | Folder containing some datasets than can be used as examples |
-| **example_of_result** | Folder containing examples of result obtained with the dataset |
+| **homopolymer.nf** | File that can be executed using a CLI (command line interface). |
+| **nextflow.config** | Parameter settings for the homopolymer.nf file. |
+| **dataset** | Folder containing some datasets than can be used as examples. |
+| **example_of_result** | Folder containing examples of result obtained with the dataset. |
 
 
 <br /><br />
 ## INPUT
 
-A fasta file
+A fasta file.
+
+The dataset used in the nextflow.config file, as example, is available at [https://zenodo.org/records/10681460/files/test.fasta](https://zenodo.org/records/10681460/files/test.fasta).
 
 
 <br /><br />
@@ -75,44 +77,45 @@ A fasta file
 Installation of:<br />
 [nextflow DSL2](https://github.com/nextflow-io/nextflow)<br />
 [Graphviz](https://www.graphviz.org/download/), `sudo apt install graphviz` for Linux ubuntu<br />
-[Singularity/apptainer](https://github.com/apptainer/apptainer)<br />
+[Apptainer](https://github.com/apptainer/apptainer)<br />
 
 <br /><br />
 ### 2. Local running (personal computer)
 
 
-#### 2.1. homopolymer.nf file in the personal computer
+#### 2.1. *main.nf* file in the personal computer
 
 - Mount a server if required:
 
-<pre>
-DRIVE="Z"
-sudo mkdir /mnt/z
-sudo mount -t drvfs $DRIVE: /mnt/z
-</pre>
+```
+DRIVE="Z" # change the letter to fit the correct drive
+sudo mkdir /mnt/share
+sudo mount -t drvfs $DRIVE: /mnt/share
+```
 
 Warning: if no mounting, it is possible that nextflow does nothing, or displays a message like:
 <pre>
-Launching `homopolymer.nf` [loving_morse] - revision: d5aabe528b
+Launching `main.nf` [loving_morse] - revision: d5aabe528b
 /mnt/share/Users
 </pre>
 
-- Run the following command from where the homopolymer.nf and nextflow.config files are (example: \\wsl$\Ubuntu-20.04\home\gael):
+- Run the following command from where the *main.nf* and *nextflow.config* files are (example: \\wsl$\Ubuntu-20.04\home\gael):
 
-<pre>
-nextflow run homopolymer.nf -c nextflow.config
-</pre>
+```
+nextflow run main.nf -c nextflow.config
+```
 
 with -c to specify the name of the config file used.
 
 <br /><br />
-#### 2.3. homopolymer.nf file in the public gitlab repository
+#### 2.3. *main.nf* file in the public git repository
 
 Run the following command from where you want the results:
 
-<pre>
-nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0
-</pre>
+```
+nextflow run gael-millot/homopolymer #github, or nextflow run http://github.com/gael-millot/homopolymer
+nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0 # gitlab
+```
 
 <br /><br />
 ### 3. Distant running (example with the Pasteur cluster)
@@ -121,92 +124,97 @@ nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0
 
 Copy-paste this after having modified the EXEC_PATH variable:
 
-<pre>
-EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/homopolymer" # where the bin folder of the homopolymer.nf script is located
+```
+EXEC_PATH="/pasteur/zeus/projets/p01/BioIT/gmillot/homopolymer" # where the bin folder of the main.nf script is located
 export CONF_BEFORE=/opt/gensoft/exe # on maestro
 
 export JAVA_CONF=java/13.0.2
 export JAVA_CONF_AFTER=bin/java # on maestro
-export SINGU_CONF=apptainer/1.1.5
-export SINGU_CONF_AFTER=bin/singularity # on maestro
+export APP_CONF=apptainer/1.2.3
+export APP_CONF_AFTER=bin/apptainer # on maestro
 export GIT_CONF=git/2.39.1
 export GIT_CONF_AFTER=bin/git # on maestro
 export GRAPHVIZ_CONF=graphviz/2.42.3
 export GRAPHVIZ_CONF_AFTER=bin/graphviz # on maestro
 
-MODULES="${CONF_BEFORE}/${JAVA_CONF}/${JAVA_CONF_AFTER},${CONF_BEFORE}/${SINGU_CONF}/${SINGU_CONF_AFTER},${CONF_BEFORE}/${GIT_CONF}/${GIT_CONF_AFTER}/${GRAPHVIZ_CONF}/${GRAPHVIZ_CONF_AFTER}"
+MODULES="${CONF_BEFORE}/${JAVA_CONF}/${JAVA_CONF_AFTER},${CONF_BEFORE}/${APP_CONF}/${APP_CONF_AFTER},${CONF_BEFORE}/${GIT_CONF}/${GIT_CONF_AFTER}/${GRAPHVIZ_CONF}/${GRAPHVIZ_CONF_AFTER}"
 cd ${EXEC_PATH}
-# chmod 755 ${EXEC_PATH}/bin/*.* # not required if no bin folder
-module load ${JAVA_CONF} ${SINGU_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
-</pre>
+chmod 755 ${EXEC_PATH}/bin/*.* # not required if no bin folder
+module load ${JAVA_CONF} ${APP_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
+```
 
 <br /><br />
-#### 3.2. homopolymer.nf file in a cluster folder
+#### 3.2. *main.nf* file in a cluster folder
 
-Modify the second line of the code below, and run from where the homopolymer.nf and nextflow.config files are (which has been set thanks to the EXEC_PATH variable above):
+Modify the second line of the code below, and run from where the *main.nf* and *nextflow.config* files are (which has been set thanks to the EXEC_PATH variable above):
 
-<pre>
+```
 HOME_INI=$HOME
 HOME="${ZEUSHOME}/homopolymer/" # $HOME changed to allow the creation of .nextflow into /$ZEUSHOME/homopolymer/, for instance. See NFX_HOME in the nextflow software script
 trap '' SIGINT
-nextflow run --modules ${MODULES} homopolymer.nf -c nextflow.config
+nextflow run --modules ${MODULES} main.nf -c nextflow.config
 HOME=$HOME_INI
 trap SIGINT
-</pre>
+```
 
 <br /><br />
-#### 3.3. homopolymer.nf file in the public gitlab repository
+#### 3.3. *main.nf* file in the public git repository
 
 Modify the first and third lines of the code below, and run (results will be where the EXEC_PATH variable has been set above):
 
-<pre>
+```
 VERSION="v1.0"
 HOME_INI=$HOME
 HOME="${ZEUSHOME}/homopolymer/" # $HOME changed to allow the creation of .nextflow into /$ZEUSHOME/homopolymer/, for instance. See NFX_HOME in the nextflow software script
 trap '' SIGINT
-nextflow run --modules ${MODULES} -hub pasteur gmillot/homopolymer -r $VERSION -c $HOME/nextflow.config
+nextflow run --modules ${MODULES} gael-millot/homopolymer -r $VERSION -c $HOME/nextflow.config #github, or nextflow run --modules ${MODULES} http://github.com/gael-millot/homopolymer -r $VERSION -c $HOME/nextflow.config
+nextflow run --modules ${MODULES} -hub pasteur gmillot/homopolymer -r $VERSION -c $HOME/nextflow.config # gitlab
 HOME=$HOME_INI
 trap SIGINT
-</pre>
+```
 
 <br /><br />
 ### 4. Error messages and solutions
 
 #### Message 1
-```
-Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
-```
-
-Purge using:
 <pre>
-rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
+Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
 </pre>
 
+Purge using:
+```
+rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
+```
+
 #### Message 2
-```
+<pre>
 WARN: Cannot read project manifest -- Cause: Remote resource not found: https://gitlab.pasteur.fr/api/v4/projects/gmillot%2Fhomopolymer
-```
+</pre>
 
 Contact Gael Millot (distant repository is not public).
 
 #### Message 3
-
-```
+<pre>
 permission denied
-```
+</pre>
 
-Use chmod to change the user rights.
+Use chmod to change the user rights. Example linked to files in the bin folder: 
+```
+chmod 755 bin/*.*
+```
 
 
 <br /><br />
 ## OUTPUT
 
 
-**report.html** report of the analysis
+An example of results is present at this address: [https://zenodo.org/records/10681460/files/homopolymer_2_1708366715.zip](https://zenodo.org/records/10681460/files/homopolymer_2_1708366715.zip).
 
-**reports** folder containing all the reports of the different processes as well as the **nextflow.config** file used
+**report.html** report of the analysis.
 
-**figures** folder containing all the figures in the **report.html** in the .png format
+**reports** folder containing all the reports of the different processes as well as the **nextflow.config** file used.
+
+**figures** folder containing all the figures in the **report.html** in the .png format.
 
 **files** folder containing the following files:
 
@@ -260,7 +268,7 @@ From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol
 
 From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file. 
 <br />
-Each line is a proportion of one polymer length in one sequence. The total nomber of rows should be: number of different homopolymer lengths x number of sequences x number of kind
+Each line is a proportion of one polymer length in one sequence. The total nomber of rows should be: number of different homopolymer lengths x number of sequences x number of kind.
 
 | Column | Description |
 | --- | --- |
@@ -297,7 +305,7 @@ the t test table displayed in the report.html file
 ## VERSIONS
 
 
-The different releases are tagged [here](https://gitlab.pasteur.fr/gmillot/homopolymer/-/tags)
+The different releases are tagged [here](https://github.com/gael-millot/homopolymer/tags).
 
 <br /><br />
 ## LICENCE
@@ -317,59 +325,67 @@ Not yet published
 ## CREDITS
 
 
-[Gael A. Millot](https://gitlab.pasteur.fr/gmillot), Hub-CBD, Institut Pasteur, Paris, France
+[Gael A. Millot](https://github.com/gael-millot), Hub, Institut Pasteur, Paris, France.
 
 <br /><br />
 ## ACKNOWLEDGEMENTS
 
 
-Yoann Dufresne, Hub-CBD, Institut Pasteur, Paris
+The developers & maintainers of the mentioned softwares and packages, including:
 
-The mentioned softwares and packages developers & maintainers
+- [cyvcf2](https://brentp.github.io/cyvcf2/docstrings.html)
+- [R](https://www.r-project.org/)
+- [ggplot2](https://ggplot2.tidyverse.org/)
+- [Nextflow](https://www.nextflow.io/)
+- [Apptainer](https://apptainer.org/)
+- [Docker](https://www.docker.com/)
+- [Gitlab](https://about.gitlab.com/)
+- [Bash](https://www.gnu.org/software/bash/)
+- [Ubuntu](https://ubuntu.com/)
 
-Gitlab developers
+Special acknowledgement to [Yoann Dufresne](https://github.com/yoann-dufresne), Hub, Institut Pasteur, Paris, France.
 
 <br /><br />
 ## WHAT'S NEW IN
 
 ### v5.1
 
-Bug fixed in report
+Bug fixed in report.
 
 
 ### v5.0
 
-Nextflow dsl2
+Nextflow DSL1 -> DSL2.
 
 
 ### v4.3
 
-Plot_raw_values.tsv file added and boxplot_stat_log.tsv file modified
+Plot_raw_values.tsv file added and boxplot_stat_log.tsv file modified.
 
 
 ### v4.2
 
-Plot and html report modified
+Plot and html report modified.
 
 
 ### v4.1
 
-Boxplots modified
+Boxplots modified.
 
 
 ### v4.0
 
-Completemy rewritten
+Completemy rewritten.
 
 
 ### v3.2
 
-Minimum length of homopolymer added as parameter, among other things
+Minimum length of homopolymer added as parameter, among other things.
 
 
 ### v3.1
 
-Many things improved
+Many things improved.
 
 
 ### v3.0
@@ -379,12 +395,12 @@ Completely modified. Now the file is a nextflow and outputs include tables ,grap
 
 ### v2.0
 
-New features included in the result table
+New features included in the result table.
 
 
 ### v1.0
 
-Everything
+Everything.
 
 
 
