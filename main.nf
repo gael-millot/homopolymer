@@ -1,4 +1,4 @@
-nextflow.enable.dsl=1
+nextflow.enable.dsl=2
 /*
 #########################################################################################
 ##                                                                                     ##
@@ -14,79 +14,53 @@ nextflow.enable.dsl=1
 */
 
 
-print("\n\nRESULT DIRECTORY: ${out_path}")
-print("\n\nWARNING: PARAMETERS ALREADY INTERPRETED IN THE .config FILE:")
-print("    system_exec: ${system_exec}")
-print("    out_path: ${out_path_ini}")
-if("${system_exec}" != "local"){
-    print("    queue: ${queue}")
-    print("    qos: ${qos}")
-    print("    add_options: ${add_options}")
-}
-print("\n\n")
-
-
-//////// Arguments of nextflow run
-
-params.modules = ""
-
-//////// end Arguments of nextflow run
-
-
-//////// Variables
-
-// from the nextflow.config file
-config_file = file("${projectDir}/nextflow.config")
-log_file = file("${launchDir}/.nextflow.log")
-file_name = file("${in_path}/${fasta_file}").baseName
-
-
-
-// end from the nextflow.config file
-
-// from parameters
-modules = params.modules // remove the dot -> can be used in bash scripts
-// end from parameters
-
-//////// end Variables
-
-
-//////// Variables from config.file that need to be checked
-
-fasta_ch_test = file("${in_path}/${fasta_file}") // to test if exist below
-
-//////// end Variables from config.file that need to be checked
-
-
-//////// Channels
-
-fasta_ch = Channel.fromPath("${in_path}/${fasta_file}", checkIfExists: false) // I could use true, but I prefer to perform the check below, in order to have a more explicit error message
-
-//////// end Channels
-
-//////// Checks
-
-if(system_exec == 'local' || system_exec == 'slurm' || system_exec == 'slurm_local'){
-    def file_exists1 = fasta_ch_test.exists()
-    if( ! file_exists1){
-        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID in_path AND fasta_file PARAMETERS IN nextflow.config FILE: ${in_path}/${fasta_file}\n\nIF POINTING TO A DISTANT SERVER, CHECK THAT IT IS MOUNTED\n\n========\n\n"
-    }
-}else{
-    error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID system_exec PARAMETER IN nextflow.config FILE: ${system_exec}\nTHE ONLY POSSIBLE VALUES ARE local, slurm OR slurm_local\n\n========\n\n"
-}
-
-//////// end Checks
 
 
 
 //////// Processes
 
-process init {
+
+
+process workflowParam { // create a file with the workflow parameters in out_path
+    label 'bash'
+    publishDir "${out_path}/reports", mode: 'copy', overwrite: false
+    cache 'false'
+
+    input: // does not work if modules if not declared
+    val modules
+
+    output:
+    path "Run_info.txt"
+
+    script:
+    """
+    echo "Project (empty means no .git folder where the main.nf file is present): " \$(git -C ${projectDir} remote -v | head -n 1) > Run_info.txt # works only if the main script run is located in a directory that has a .git folder, i.e., that is connected to a distant repo
+    echo "Git info (empty means no .git folder where the main.nf file is present): " \$(git -C ${projectDir} describe --abbrev=10 --dirty --always --tags) >> Run_info.txt # idem. Provide the small commit number of the script and nextflow.config used in the execution
+    echo "Cmd line: ${workflow.commandLine}" >> Run_info.txt
+    echo "execution mode": ${system_exec} >> Run_info.txt
+    modules=$modules # this is just to deal with variable interpretation during the creation of the .command.sh file by nextflow. See also \$modules below
+    if [[ ! -z \$modules ]] ; then
+        echo "loaded modules (according to specification by the user thanks to the --modules argument of main.nf): ${modules}" >> Run_info.txt
+    fi
+    echo "Manifest's pipeline version: ${workflow.manifest.version}" >> Run_info.txt
+    echo "result path: ${out_path}" >> Run_info.txt
+    echo "nextflow version: ${nextflow.version}" >> Run_info.txt
+    echo -e "\\n\\nIMPLICIT VARIABLES:\\n\\nlaunchDir (directory where the workflow is run): ${launchDir}\\nprojectDir (directory where the main.nf script is located): ${projectDir}\\nworkDir (directory where tasks temporary files are created): ${workDir}" >> Run_info.txt
+    echo -e "\\n\\nUSER VARIABLES:\\n\\nout_path: ${out_path}\\nsample_path: ${sample_path}" >> Run_info.txt
+    """
+}
+//${projectDir} nextflow variable
+//${workflow.commandLine} nextflow variable
+//${workflow.manifest.version} nextflow variable
+//Note that variables like ${out_path} are interpreted in the script block
+
+
+process initial { // init name does not work !
     label 'bash' // see the withLabel: bash in the nextflow config file 
     cache 'false'
 
     output:
-    file "report.rmd" into log_ch0
+    path "report.rmd", emit: log_ch0
 
     script:
     """
@@ -112,25 +86,17 @@ process homopolymer {
     cache 'true'
 
     input:
-    set  id, seqString from fasta_ch.splitFasta(record:[header: true, seqString: true]) // warning: several data -> parall expected
-    // splitFasta(record:[header: true, seqString: true]) split a fasta files in records (one per sequence), each record with two items: the first is the header and the second the seq string
-    // see https://www.nextflow.io/docs/latest/operator.html#splitfasta
-    // set takes the first and second items of the record
+    tuple val(id), val(seqString) // warning: several data -> parall expected
     val min_length
 
     output:
-    file "homopol_df.tsv" into homopol_df_ch
+    path "homopol_df.tsv", emit: homopol_df_ch
 
     script:
     """
     homopolymer.py "${seqString}" "${id}" "${min_length}" "homopol_df.tsv"
     """
 }
-
-// homopol_df_ch1.collectFile(name: "${file_name}_homopol_summary.tsv").subscribe{it -> it.copyTo("${out_path}/files/${file_name}_homopol_summary.tsv")} // concatenate all the homopol_df.tsv files in channel homopol_df_ch into a single file published into the indicated path. STRONG WARNING: copyTo(${out_path}/files/) works only if the files folder already exists. Ohterwise, the saved file becomes "files"
-homopol_df_ch.collectFile(name: "${file_name}_homopol_summary.tsv")into{tsv_ch1 ; tsv_ch2}
-
-
 
 
 process graph_stat {
@@ -142,20 +108,20 @@ process graph_stat {
 
     input:
     val file_name
-    val cute_path
+    path cute_file
     val min_length
-    file  tsv from tsv_ch1
+    path  tsv
 
     output:
-    file "*.png" into fig_ch1
-    file "*.tsv" into table_ch1
-    file "graph_stat_report.txt"
-    file "graph_stat.RData"
-    file "report.rmd" into log_ch1
+    path "*.png", emit: fig_ch1
+    path "*.tsv", emit: table_ch1
+    path "graph_stat_report.txt"
+    path "graph_stat.RData"
+    path "report.rmd", emit: log_ch1
 
     script:
     """
-    graph_stat.R "${tsv}" "${file_name}" "${cute_path}" "graph_stat_report.txt"
+    graph_stat.R "${tsv}" "${file_name}" "${cute_file}" "graph_stat_report.txt"
 
     echo -e "\\n\\n<br /><br />\\n\\n###  Results\\n\\n" > report.rmd
     echo -e "The minimal polymer length of ${min_length}, set in the min_lenght paremeter of the nextflow.config file, is for the homopol_summary.tsv file only (except the two last columns of this file).\\n\\nRandomisation of each sequence was performed 10,000 times without any constrain.\\nThen means were computed for each homopolymer length category." >> report.rmd
@@ -199,13 +165,13 @@ process backup {
     cache 'false'
 
     input:
-    file config_file
-    file log_file
+    path config_file
+    path log_file
 
     output:
-    file "${config_file}" // warning message if we use file config_file
-    file "${log_file}" // warning message if we use file log_file
-    file "report.rmd" into log_ch2
+    path "${config_file}" // warning message if we use file config_file
+    path "${log_file}" // warning message if we use file log_file
+    path "report.rmd", emit: log_ch2
 
     script:
     """
@@ -220,12 +186,15 @@ process workflowVersion { // create a file with the workflow version in out_path
     label 'bash' // see the withLabel: bash in the nextflow config file 
     cache 'false'
 
+    input: // does not work if modules if not declared
+    val modules
+
     output:
-    file "report.rmd" into log_ch3
+    path "report.rmd", emit: log_ch3
 
     script:
     """
-    modules=$modules # this is just to deal with variable interpretation during the creation of the .command.sh file by nextflow. See also \$modules below
+    modules=${modules} # this is just to deal with variable interpretation during the creation of the .command.sh file by nextflow. See also \$modules below
     echo -e "\\n\\n<br /><br />\\n\\n###  Workflow Version\\n\\n" > report.rmd
     echo -e "\\n\\n#### General\\n\\n
 | Variable | Value |
@@ -256,7 +225,7 @@ process workflowVersion { // create a file with the workflow version in out_path
 | Name | Description | Value | 
 | :-- | :-- | :-- |
 | out_path | output folder path | ${out_path} |
-| in_path | input folder path | ${in_path} |
+| in_path | input folder path | ${sample_path} |
     " >> report.rmd
 
     echo -e "\\n\\n<br /><br />\\n\\n#### Workflow diagram\\n\\nSee the [nf_dag.png](./reports/nf_dag.png) file" >> report.rmd
@@ -275,16 +244,16 @@ process print_report { // section 8.8 of the labbook 20200520
     cache 'false'
 
     input:
-    val cute_path
-    file report from log_ch0.concat(log_ch1, log_ch2, log_ch3).collectFile(name: 'report.rmd', sort: false)
-    file png1 from fig_ch1.collect() // warning: several files
-    file table from tsv_ch2
-    file table2 from table_ch1.collect() // warning: several files
+    path cute_file
+    path report
+    path png1 // warning: several files
+    path table
+    path table2 // warning: several files
 
     output:
-    file "report.html"
-    file "print_report.txt"
-    file "report.rmd"
+    path "report.html"
+    path "print_report.txt"
+    path "report.rmd"
 
     script:
     """
@@ -295,9 +264,146 @@ process print_report { // section 8.8 of the labbook 20200520
     cp ${png1} ./figures/ # this is to get hard files, not symlinks, for knitting
     cp ${table} ${table2} ./files/ # this is to get hard files, not symlinks, for knitting
     echo "" > ./reports/nf_dag.png # trick to delude the knitting during the print report
-    print_report.R "${cute_path}" "report_file.rmd" "print_report.txt"
+    print_report.R "${cute_file}" "report_file.rmd" "print_report.txt"
     """
 }
 
 
 //////// end Processes
+
+
+
+//////// Workflow
+
+
+workflow {
+
+    //////// Options of nextflow run
+
+    print("\n\nINITIATION TIME: ${workflow.start}")
+
+    //////// end Options of nextflow run
+
+
+    //////// Options of nextflow run
+
+    // --modules (it is just for the process workflowParam)
+    params.modules = "" // if --module is used, this default value will be overridden
+    // end --modules (it is just for the process workflowParam)
+
+    //////// end Options of nextflow run
+
+
+    //////// Variables
+
+
+    config_file = workflow.configFiles[0] // better to use this than config_file = file("${projectDir}/nextflow.config") because the latter is not good if -c option of nextflow run is used // file() create a path object necessary o then create the file
+    log_file = file("${launchDir}/.nextflow.log")
+
+    // from parameters (options of the nexflow command line)
+    modules = params.modules // remove the dot -> can be used in bash scripts
+    // end from parameters (options of the nexflow command line)
+
+    //////// end Variables
+
+
+    //////// Checks
+
+    if( ! (sample_path.class == String) ){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID sample_path PARAMETER IN repertoire_profiler.config FILE:\n${sample_path}\nMUST BE A SINGLE CHARACTER STRING\n\n========\n\n"
+    }else if( ! (file(sample_path).exists()) ){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID sample_path PARAMETER IN repertoire_profiler.config FILE (DOES NOT EXIST): ${sample_path}\nIF POINTING TO A DISTANT SERVER, CHECK THAT IT IS MOUNTED\n\n========\n\n"
+    }
+    if( ! min_length.class == String ){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID thread_nb PARAMETER IN nextflow.config FILE:\n${min_length}\nMUST BE A SINGLE CHARACTER STRING OF AN INTEGER VALUE\n\n========\n\n"
+    }else if( ! (min_length =~ /^[0123456789]+$/ || min_length == "NULL")){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID thread_nb PARAMETER IN nextflow.config FILE:\n${min_length}\nMUST BE A SINGLE CHARACTER STRING OF AN INTEGER VALUE\n\n========\n\n"
+    }
+
+    // below : those variable are already used in the config file. Thus, to late to check them. And not possible to check inside the config file
+    // system_exec
+    // out_ini
+    print("\n\nRESULT DIRECTORY: ${out_path}")
+    if("${system_exec}" != "local"){
+        print("    queue: ${queue}")
+        print("    qos: ${qos}")
+        print("    add_options: ${add_options}")
+    }
+    print("\n\n")
+
+
+    //////// end Checks
+
+
+    //////// Variables from config.file that need to be modified
+
+
+    //////// end Variables from config.file that need to be modified
+
+
+
+    //////// Channels
+
+    vcf_ch = Channel.fromPath(sample_path) 
+
+    //////// end Channels
+
+
+    //////// files import
+
+    // in variable because a single file. If "NULL", will create a empty file, present in work folders, but that cannot be correctly linked. Thus, if the file has to be redirected into a channel inside a process, it will not work. Thus, in the first process using meta_file, I hard copy the NULL file if required (see below)
+    cute_file = file(cute_path) // in variable because a single file
+    sample_file = file(sample_path) // in variable because a single file, to get the name of the file
+
+    //////// end files import
+
+
+
+    //////// Main
+
+
+    workflowParam(
+        modules
+    )
+
+    initial()
+
+    // vcf_ch.splitFasta(record:[header: true, seqString: true]).view()
+    homopolymer(
+        vcf_ch.splitFasta(record:[header: true, seqString: true]), // parallel
+        min_length
+    )
+    // splitFasta(record:[header: true, seqString: true]) split a fasta files in records (one per sequence), each record with two items: the first is the header and the second the seq string
+    // see https://www.nextflow.io/docs/latest/operator.html#splitfasta
+    // set takes the first and second items of the record
+    // homopol_df_ch1.collectFile(name: "${file_name}_homopol_summary.tsv").subscribe{it -> it.copyTo("${out_path}/files/${file_name}_homopol_summary.tsv")} // concatenate all the homopol_df.tsv files in channel homopol_df_ch into a single file published into the indicated path. STRONG WARNING: copyTo(${out_path}/files/) works only if the files folder already exists. Ohterwise, the saved file becomes "files"
+    tsv_ch = homopolymer.out.homopol_df_ch.collectFile(name: "${sample_file.baseName}_homopol_summary.tsv")
+
+    graph_stat(
+        sample_file.baseName,
+        cute_file, 
+        min_length, 
+        tsv_ch
+    )
+
+    backup(
+        config_file,
+        log_file
+    )
+
+    workflowVersion(
+        modules
+    )
+
+    print_report(
+        cute_file,
+        initial.out.log_ch0.concat(graph_stat.out.log_ch1, backup.out.log_ch2, workflowVersion.out.log_ch3).collectFile(name: 'report.rmd', sort: false),
+        graph_stat.out.fig_ch1.collect(),
+        tsv_ch,
+        graph_stat.out.table_ch1.collect()
+    )
+
+
+
+
+}

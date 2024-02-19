@@ -332,6 +332,11 @@ Gitlab developers
 <br /><br />
 ## WHAT'S NEW IN
 
+### v5.0
+
+nextflow dsl2
+
+
 ### v4.3
 
 plot_raw_values.tsv file added and boxplot_stat_log.tsv file modified
