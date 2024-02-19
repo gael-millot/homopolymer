@@ -5,3 +5,4 @@ results/
 .nextflow*
 example of results/
 dataset/
+dev/

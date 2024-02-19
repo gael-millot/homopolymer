@@ -97,7 +97,7 @@ rm(tempo.cat)
 
 ################################ Test
 
-# tsv <- "C:\\Users\\gael\\Documents\\Git_projects\\homopolymer\\example of results\\integrases.tsv"
+# tsv <- "C:\\Users\\gmillot\\Documents\\Git_projects\\homopolymer\\dev\\test_homopol_summary.tsv"
 # file_name <- "caca"
 # cute <- "https://gitlab.pasteur.fr/gmillot/cute_little_R_functions/-/raw/v11.2.0/cute_little_R_functions.R"
 # log <- "graph_stat_report.txt"
@@ -464,9 +464,9 @@ write.table(p.mult.prop, file = paste0("./t_test.tsv"), row.names = FALSE, col.n
 ############ plotting
 
 
-png(filename = paste0("plot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
+
 if(nrow(final3.prop) > 0){
-    fun_gg_scatter(
+    tempo.plot <- fun_gg_scatter(
         data1 = list(final3.prop, stat.prop, stat.prop, stat.prop), # res # res[res$KIND == "obs.freq", ]
         x = list("length", "length", "length", "length"), 
         y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
@@ -494,18 +494,24 @@ if(nrow(final3.prop) > 0){
         y.log = "no", 
         y.second.tick.nb = 5, 
         text.size = 24, 
-        title.text.size = 16
-    )
+        title.text.size = 16,
+        return = TRUE, 
+        return.ggplot = TRUE,
+        return.gtable = FALSE,
+        plot = FALSE
+    )$ggplot
 }else{
-    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+    tempo.plot <- fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
 
+ggplot2::ggsave(filename = paste0("plot_", file_name, ".png"), plot = tempo.plot, device = "png", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
+ggplot2::ggsave(filename = paste0("plot_", file_name, ".svg"), plot = tempo.plot, device = "svg", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
 
-png(filename = paste0("boxplot_", file_name, ".png"), width = 5000, height = 1800, units = "px", res = 300)
+
 # tempo <- data.frame(length = c((1:length(obs2.prop)) - 0.1, (1:length(obs2)) + 0.1), freq = c(obs2.prop, theo2.prop), kind = rep(c("obs", "theo"), each = length(obs2.prop)))
 # write.table(tempo, file = paste0("./boxplot.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 if(nrow(final3.prop) > 0){
-    tempo <- fun_gg_boxplot(
+    tempo.plot <- fun_gg_boxplot(
         data1 = final3.prop, # res # res[res$KIND == "obs.freq", ]
         categ = c("graph.length", "kind"), 
         y = "freq", 
@@ -523,21 +529,28 @@ if(nrow(final3.prop) > 0){
         y.second.tick.nb = 5, 
         text.size = 24, 
         title.text.size = 16,
-        return = TRUE
+        return = TRUE, 
+        return.ggplot = TRUE,
+        return.gtable = FALSE,
+        plot = FALSE
     )
-    stats <- tempo$stat[, c("kind", "graph.length", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
+    stats <- tempo.plot$stat[, c("kind", "graph.length", "MIN", "QUART1", "MEDIAN", "MEAN", "QUART3", "MAX", "WHISK_INF", "BOX_INF", "NOTCH_INF", "NOTCH_SUP", "BOX_SUP", "WHISK_SUP", "OUTLIERS")]
     stats$OUTLIERS <- unlist(lapply(stats$OUTLIERS, FUN = function(x){paste(x, collapse = ",")}))
     names(stats)[names(stats) == "graph.length"] <- "length"
     write.table(as.matrix(stats), file = paste0("./boxplot_stat_log.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
+    tempo.plot <- tempo.plot$ggplot
 }else{
-    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+    tempo.plot <- fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
     write.table("", file = paste0("./boxplot_stat.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 }
 
+ggplot2::ggsave(filename = paste0("boxplot_", file_name, ".png"), plot = tempo.plot, device = "png", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
+ggplot2::ggsave(filename = paste0("boxplot_", file_name, ".svg"), plot = tempo.plot, device = "svg", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
 
-png(filename = paste0("plot_", file_name, "_log10.png"), width = 5000, height = 1800, units = "px", res = 300)
+
+
 if(nrow(final3.prop) > 0){
-    fun_gg_scatter(
+    tempo.plot <- fun_gg_scatter(
         data1 = list(final3.prop, stat.prop, stat.prop, stat.prop), # res # res[res$KIND == "obs.freq", ]
         x = list("length", "length", "length", "length"), 
         y = list("freq", "mean", "CI95.inf", "CI95.sup"), 
@@ -565,18 +578,24 @@ if(nrow(final3.prop) > 0){
         y.log = "log10", 
         y.second.tick.nb = 5, 
         text.size = 24, 
-        title.text.size = 16
-    )
+        title.text.size = 16,
+        return = TRUE, 
+        return.ggplot = TRUE,
+        return.gtable = FALSE,
+        plot = FALSE
+    )$ggplot
 }else{
-    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+    tempo.plot <- fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
 
+ggplot2::ggsave(filename = paste0("plot_", file_name, "_log10.png"), plot = tempo.plot, device = "png", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
+ggplot2::ggsave(filename = paste0("plot_", file_name, "_log10.svg"), plot = tempo.plot, device = "svg", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
 
-png(filename = paste0("boxplot_", file_name, "_log10.png"), width = 5000, height = 1800, units = "px", res = 300)
+
 # tempo <- data.frame(length = c((1:length(obs2.prop)) - 0.1, (1:length(obs2)) + 0.1), freq = c(obs2.prop, theo2.prop), kind = rep(c("obs", "theo"), each = length(obs2.prop)))
 # write.table(tempo, file = paste0("./boxplot.tsv"), row.names = FALSE, col.names = TRUE, append = FALSE, quote = FALSE, sep = "\t")
 if(nrow(final3.prop) > 0){
-    tempo.log <- fun_gg_boxplot(
+    tempo.plot <- fun_gg_boxplot(
         data1 = final3.prop, # res # res[res$KIND == "obs.freq", ]
         categ = c("graph.length", "kind"), 
         y = "freq", 
@@ -594,13 +613,17 @@ if(nrow(final3.prop) > 0){
         y.second.tick.nb = 5, 
         text.size = 24, 
         title.text.size = 16,
-        return = TRUE
-    )
+        return = TRUE, 
+        return.ggplot = TRUE,
+        return.gtable = FALSE,
+        plot = FALSE
+    )$ggplot
 }else{
-    fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
+    tempo.plot <- fun_gg_empty_graph(text = "EMPTY .tsv FILE: NO PLOT DRAWN")
 }
 
-
+ggplot2::ggsave(filename = paste0("boxplot_", file_name, "_log10.png"), plot = tempo.plot, device = "png", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
+ggplot2::ggsave(filename = paste0("boxplot_", file_name, "_log10.svg"), plot = tempo.plot, device = "svg", path = ".", width = 334, height = 120, units = "mm", dpi = 300)
 
 
 

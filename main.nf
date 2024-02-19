@@ -101,7 +101,8 @@ process homopolymer {
 
 process graph_stat {
     label 'r_ext'
-    publishDir "${out_path}/figures", mode: 'copy', pattern: "{*.png}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/figures/png", mode: 'copy', pattern: "{*.png}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
+    publishDir "${out_path}/figures/svg", mode: 'copy', pattern: "{*.svg}", overwrite: false
     publishDir "${out_path}/reports", mode: 'copy', pattern: "{graph_stat_report.txt}", overwrite: false // https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob
     publishDir "${out_path}/files", mode: 'copy', pattern: "{*.tsv,*.RData}", overwrite: false  // warning,: no space after the comma in the pattern
     cache 'deep'
@@ -114,6 +115,7 @@ process graph_stat {
 
     output:
     path "*.png", emit: fig_ch1
+    path "*.svg"
     path "*.tsv", emit: table_ch1
     path "graph_stat_report.txt"
     path "graph_stat.RData"
@@ -129,20 +131,20 @@ process graph_stat {
     echo -e "Each dot is a value obtained for one sequence.<br />See the [plot_raw_values.tsv](./files/) file for the plot raw values.<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 1: Proportions of homopolymer lengths. See the [scatterplot_stat.tsv](./files/) file for values](./figures/plot_${file_name}.png){width=600}
+![Figure 1: Proportions of homopolymer lengths. See the [scatterplot_stat.tsv](./files/) file for values](./figures/png/plot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
 \\n\\n</center>\\n\\n
-![Figure 2: Proportions of homopolymer lengths (log10)](./figures/plot_${file_name}_log10.png){width=600}
+![Figure 2: Proportions of homopolymer lengths (log10)](./figures/png/plot_${file_name}_log10.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
     echo -e "\\n\\n<br /><br />\\n\\n#### Boxplot plot\\n\\n<br />" >> report.rmd
     echo -e "Each dot is a value obtained for one sequence.<br /><br />\\n\\n" >> report.rmd
     echo -e "
 \\n\\n</center>\\n\\n
-![Figure 3: Proportions of homopolymer lengths: diamond, mean; whiskers, 1.5 x Inter Quartile Range; horizontal bars, quartiles; number at the top, mean. See the [boxplot_stat.tsv](./files/) file for values](./figures/boxplot_${file_name}.png){width=600}
+![Figure 3: Proportions of homopolymer lengths: diamond, mean; whiskers, 1.5 x Inter Quartile Range; horizontal bars, quartiles; number at the top, mean. See the [boxplot_stat.tsv](./files/) file for values](./figures/png/boxplot_${file_name}.png){width=600}
 \\n\\n</center>\\n\\n
 \\n\\n</center>\\n\\n
-![Figure 4: Proportions of homopolymer lengths (log10)](./figures/boxplot_${file_name}_log10.png){width=600}
+![Figure 4: Proportions of homopolymer lengths (log10)](./figures/png/boxplot_${file_name}_log10.png){width=600}
 \\n\\n</center>\\n\\n
     " >> report.rmd
     echo -e "\n\\n<br /><br />\\n\\n#### T test \"Obs versus Theo\" for each homopolymer length (see also the [t_test.tsv](./files/) file)<br />\\n\\n" >> report.rmd
@@ -258,10 +260,10 @@ process print_report { // section 8.8 of the labbook 20200520
     script:
     """
     cp ${report} report_file.rmd # this is to get hard files, not symlinks, for knitting
-    mkdir figures
+    mkdir -p figures/png
     mkdir files
     mkdir reports
-    cp ${png1} ./figures/ # this is to get hard files, not symlinks, for knitting
+    cp ${png1} ./figures/png/ # this is to get hard files, not symlinks, for knitting
     cp ${table} ${table2} ./files/ # this is to get hard files, not symlinks, for knitting
     echo "" > ./reports/nf_dag.png # trick to delude the knitting during the print report
     print_report.R "${cute_file}" "report_file.rmd" "print_report.txt"
