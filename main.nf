@@ -2,7 +2,7 @@ nextflow.enable.dsl=1
 /*
 #########################################################################################
 ##                                                                                     ##
-##     homopolymer.nf                                                                         ##
+##     homopolymer.nf                                                                  ##
 ##     Analysis of homopolymers in a batch of sequences in a fasta file                ##
 ##                                                                                     ##
 ##     Gael A. Millot                                                                  ##

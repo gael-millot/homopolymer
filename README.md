@@ -12,7 +12,7 @@
 
 
    - [AIM](#aim)
-   - [WARNING](#warning)
+   - [WARNINGS](#warnings)
    - [CONTENT](#content)
    - [HOW TO RUN](#how-to-run)
    - [OUTPUT](#output)
@@ -31,7 +31,7 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 
 
 <br /><br />
-## WARNING
+## WARNINGS
 
 The algorithm works as if it splits the input sequence according to homopolymers and then returns the info.
 
@@ -354,27 +354,27 @@ Completemy rewritten
 
 ### v3.2
 
-1) Minimum length of homopolymer added as parameter, among other things
+Minimum length of homopolymer added as parameter, among other things
 
 
 ### v3.1
 
-1) Many things improved
+Many things improved
 
 
 ### v3.0
 
-1) Completely modified. Now the file is a nextflow and outputs include tables ,graphs and stats.
+Completely modified. Now the file is a nextflow and outputs include tables ,graphs and stats.
 
 
 ### v2.0
 
-1) New features included in the result table
+New features included in the result table
 
 
 ### v1.0
 
-1) Everything
+Everything
 
 
 
