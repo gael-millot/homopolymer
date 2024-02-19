@@ -208,7 +208,7 @@ chmod 755 bin/*.*
 ## OUTPUT
 
 
-An example of results is present at this address: [https://zenodo.org/records/10681460/files/homopolymer_2_1708366715.zip](https://zenodo.org/records/10681460/files/homopolymer_2_1708366715.zip).
+An example of results is present at this address: [https://zenodo.org/records/10681595/preview/homopolymer_2_1708386120.zip](https://zenodo.org/records/10681595/preview/homopolymer_2_1708386120.zip).
 
 **report.html** report of the analysis.
 
@@ -347,6 +347,13 @@ Special acknowledgement to [Yoann Dufresne](https://github.com/yoann-dufresne), 
 
 <br /><br />
 ## WHAT'S NEW IN
+
+### v5.2
+
+- Bugs fixed in report.
+- README improved for github.
+- nextflow.config input from zenodo.
+
 
 ### v5.1
 

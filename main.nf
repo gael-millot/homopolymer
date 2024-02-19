@@ -56,7 +56,7 @@ process workflowParam { // create a file with the workflow parameters in out_pat
 
 
 process initial { // init name does not work !
-    label 'bash' // see the withLabel: bash in the nextflow config file 
+    label 'r_ext'
     cache 'false'
 
     output:
@@ -67,7 +67,7 @@ process initial { // init name does not work !
     echo "---
     title: 'Homopolymer Report'
     author: 'Gael Millot'
-    date: '`r Sys.Date()`'
+    date: \"\$(Rscript -e 'cat(format(Sys.Date(), "%Y-%m-%d"))')\"
     output:
       html_document:
         toc: TRUE
