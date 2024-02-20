@@ -35,30 +35,28 @@ Return homopolymers info per DNA sequence in a batch of DNA sequences, as well a
 
 The algorithm works as if it splits the input sequence according to homopolymers and then returns the info.
 
-With the input sequence ATTTAAGCGGG, the homopolymers are:
+With the input sequence **ATTTAAGCGGG**, the homopolymers are:
 <br />
-A
+**A**
 <br />
-TTT
+**TTT**
 <br />
-AA
+**AA**
 <br />
-G
+**G**
 <br />
-C
+**C**
 <br />
-GGG
+**GGG**
 
 
 <br /><br />
 ## CONTENT
 
-| File or folder | Description |
+| File | Description |
 | --- | --- |
-| **homopolymer.nf** | File that can be executed using a CLI (command line interface). |
-| **nextflow.config** | Parameter settings for the homopolymer.nf file. |
-| **dataset** | Folder containing some datasets than can be used as examples. |
-| **example_of_result** | Folder containing examples of result obtained with the dataset. |
+| **main.nf** | File that can be executed using a linux terminal, a MacOS terminal or Windows 10 WSL2. |
+| **nextflow.config** | Parameter settings for the *main.nf* file. Users have to open this file, set the desired settings and save these modifications before execution. |
 
 
 <br /><br />
@@ -79,7 +77,7 @@ Installation of:<br />
 [Graphviz](https://www.graphviz.org/download/), `sudo apt install graphviz` for Linux ubuntu<br />
 [Apptainer](https://github.com/apptainer/apptainer)<br />
 
-<br /><br />
+<br />
 ### 2. Local running (personal computer)
 
 
@@ -107,17 +105,17 @@ nextflow run main.nf -c nextflow.config
 
 with -c to specify the name of the config file used.
 
-<br /><br />
+<br />
 #### 2.3. *main.nf* file in the public git repository
 
 Run the following command from where you want the results:
 
 ```
-nextflow run gael-millot/homopolymer #github, or nextflow run http://github.com/gael-millot/homopolymer
+nextflow run gael-millot/homopolymer # github, or nextflow run http://github.com/gael-millot/homopolymer
 nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0 # gitlab
 ```
 
-<br /><br />
+<br />
 ### 3. Distant running (example with the Pasteur cluster)
 
 #### 3.1. Pre-execution
@@ -139,11 +137,11 @@ export GRAPHVIZ_CONF_AFTER=bin/graphviz # on maestro
 
 MODULES="${CONF_BEFORE}/${JAVA_CONF}/${JAVA_CONF_AFTER},${CONF_BEFORE}/${APP_CONF}/${APP_CONF_AFTER},${CONF_BEFORE}/${GIT_CONF}/${GIT_CONF_AFTER}/${GRAPHVIZ_CONF}/${GRAPHVIZ_CONF_AFTER}"
 cd ${EXEC_PATH}
-chmod 755 ${EXEC_PATH}/bin/*.* # not required if no bin folder
+chmod 755 ${EXEC_PATH}/bin/*.*
 module load ${JAVA_CONF} ${APP_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
 ```
 
-<br /><br />
+<br />
 #### 3.2. *main.nf* file in a cluster folder
 
 Modify the second line of the code below, and run from where the *main.nf* and *nextflow.config* files are (which has been set thanks to the EXEC_PATH variable above):
@@ -157,7 +155,7 @@ HOME=$HOME_INI
 trap SIGINT
 ```
 
-<br /><br />
+<br />
 #### 3.3. *main.nf* file in the public git repository
 
 Modify the first and third lines of the code below, and run (results will be where the EXEC_PATH variable has been set above):
@@ -173,7 +171,7 @@ HOME=$HOME_INI
 trap SIGINT
 ```
 
-<br /><br />
+<br />
 ### 4. Error messages and solutions
 
 #### Message 1
@@ -208,98 +206,14 @@ chmod 755 bin/*.*
 ## OUTPUT
 
 
-An example of results is present at this address: [https://zenodo.org/records/10681595/preview/homopolymer_2_1708386120.zip](https://zenodo.org/records/10681595/preview/homopolymer_2_1708386120.zip).
+An example of results is present at this address: [https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip](https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip).
 
-**report.html** report of the analysis.
-
-**reports** folder containing all the reports of the different processes as well as the **nextflow.config** file used.
-
-**figures** folder containing all the figures in the **report.html** in the .png format.
-
-**files** folder containing the following files:
-
-- homopol_summary.tsv
-
-Warning: columns takes into account the **min_length** parameter in the **nextflow.config** file, meaning that the results are only for homopolymer lengths equal or above **min_length**. But, the two **homopol_obs_distrib** and **homopol_theo_distrib** columns provides the distribution of all the polymers, whatever **min_length**.
-<br /><br />
-| Column | Description |
+| homopolymer_\<HOMOPOLYMER_MIN_LENGTH\>_\<UNIQUE_ID\> folder | Description |
 | --- | --- |
-| **name** | name of the input sequence of the batch |
-| **seq_length** | nb of bases in the input sequence |
-| **max_homopol_size** | number of times the nucleotide is repeated in the longest homopolymer (i.e., length). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **nucleotide** | nucleotide of the homopolymer of **max_homopol_size**. If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **starting_position** | position of the first nucleotide of the homopolymer of **max_homopol_size**. If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **relative_position** | relative position of the **starting_position** value in the input sequence when the first base of the sequence is 0 and the last one is 1. The formula used is y = 0 if **seq_length** is 1 and y = (starting_position - 1) / seq_length otherwise, to get y between 0 and (starting_position - 1) / seq_length (i.e., not 1). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell |
-| **nb** | number of consecutive homopolymers in the input sequence |
-| **mean_size** | average homopolymer size among the number of consecutive homopolymers in the input sequence (not considering the homopolymers below the **min_length** parameter in the **nextflow.config** file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole input sequence length) |
-| **homopol_obs_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
-| **homopol_theo_distrib** | number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the **min_length** parameter in the **nextflow.config** is ignored |
-
-<br /><br />
-
-- boxplot_stat.tsv
-
-From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file
-
-| Column | Description |
-| --- | --- |
-| **length** | homopolymer length |
-| **freq** | frequency (sum of all the homopolymer numbers of size **length** in all the input sequences |
-| **kind** | observed or random (theoretical) homopolymers |
-
-<br /><br />
-
-- scatterplot_stat.tsv
-
-From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file
-
-| Column | Description |
-| --- | --- |
-| **length** | homopolymer length |
-| **kind** | observed or random (theoretical) homopolymers |
-| **mean** | frequency mean along all the sequences of the batch (sum of the number of homopolymers of size **categ** in each input sequence) / (number of sequences) |
-| **sd** | frequency standard deviation along all the sequences of the batch (sd of the corresponding  **mean**) |
-| **CI95.inf** | 95% lower Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
-| **CI95.sup** | 5% upper Confidence Interval of the **mean**, according to the normal law(**mean**, **sd**) |
-
-<br /><br />
-
-- plot_raw_values.tsv
-
-From **homopol_obs_distrib** and **homopol_theo_distrib** columns of the homopol_summary.tsv file. 
-<br />
-Each line is a proportion of one polymer length in one sequence. The total nomber of rows should be: number of different homopolymer lengths x number of sequences x number of kind.
-
-| Column | Description |
-| --- | --- |
-| **prop** | proportion of one polymer length in one sequence |
-| **length** | homopolymer length |
-| **gene_name** | name of the sequence |
-| **kind** | observed or random (theoretical) homopolymers |
-
-<br /><br />
-
-- t_test.tsv
-
-the t test table displayed in the report.html file
-
-| Column | Description |
-| --- | --- |
-| **length** | homopolymer length |
-| **obs.mean** | mean of the observed homopolymers in the batch of sequences |
-| **theo.mean** | mean of the random homopolymers |
-| **obs.sd** | standard deviation of the observed homopolymers in the batch of sequences |
-| **theo.sd** | standard deviation of the random homopolymers |
-| **df** | degree of freedom of the t test |
-| **t** | t test statistics |
-| **p.value** | p value |
-| **BH.adj.p.value** | Benjamini Hochberg adjusted p values along all the t tests performed |
-
-<br /><br />
-
-- graph_stat.RData
-
-.RData file containing all the objects used to make the report.html, that can be reused if necessary.
+| **report.html** | Report of the analysis. |
+| **reports** | Folder containing all the reports of the different processes, including the *nextflow.config* file used. |
+| **figures** | Folder containing the graphs in png format that are used in the *report.html* file, as well as the corresponding svg vectorial files if needed. |
+| **files** | Folder containing the following files:<br /><ul><li>**homopol_summary.tsv**<br />Column description: <br /><ul><li>Warning: columns takes into account the *min_length* parameter in the *nextflow.config* file, meaning that the results are only for homopolymer lengths equal or above *min_length*. But, the two *homopol_obs_distrib* and *homopol_theo_distrib* columns provides the distribution of all the polymers, whatever *min_length*.<br /></li><li>**name**: name of the input sequence of the batch.<br /></li><li>**seq_length**: nb of bases in the input sequence.<br /></li><li>**max_homopol_size**: number of times the nucleotide is repeated in the longest homopolymer (i.e., length). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell.<br /></li><li>**nucleotide**: nucleotide of the homopolymer of *max_homopol_size*. If several longest homopolymers in the input sequence, results are semi-colon separated in each cell.<br /></li><li>**starting_position**: position of the first nucleotide of the homopolymer of *max_homopol_size*. If several longest homopolymers in the input sequence, results are semi-colon separated in each cell.<br /></li><li>**relative_position**: relative position of the *starting_position* value in the input sequence when the first base of the sequence is 0 and the last one is 1. The formula used is y = 0 if *seq_length* is 1 and y = (starting_position - 1) / seq_length otherwise, to get y between 0 and (starting_position - 1) / seq_length (i.e., not 1). If several longest homopolymers in the input sequence, results are semi-colon separated in each cell.<br /></li><li>**nb**: number of consecutive homopolymers in the input sequence.<br /></li><li>**mean_size**: average homopolymer size among the number of consecutive homopolymers in the input sequence (not considering the homopolymers below the *min_length* parameter in the *nextflow.config* file, meaning that the mean is computed only on the length of the considered homopolymers, not using the whole input sequence length).<br /></li><li>**homopol_obs_distrib**: number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the *min_length* parameter in the *nextflow.config* is ignored.<br /></li><li>**homopol_theo_distrib**: number of homopol of size 1, 2, ..., n (semi-colon separator). Warning: the *min_length* parameter in the *nextflow.config* is ignored.<br /></ul><li>**boxplot_stat.tsv**<br />Column description: <br /><ul><li>From *homopol_obs_distrib* and *homopol_theo_distrib* columns of the homopol_summary.tsv file.<br /></li><li>**length**: homopolymer length.<br /></li><li>**freq**: frequency (sum of all the homopolymer numbers of size *length* in all the input sequences.<br /></li><li>**kind**: observed or random (theoretical) homopolymers.<br /></ul><li>**scatterplot_stat.tsv**<br />Column description: <br /><ul><li>From *homopol_obs_distrib* and *homopol_theo_distrib* columns of the homopol_summary.tsv file.<br /></li><li>**length**: homopolymer length.<br /></li><li>**kind**: observed or random (theoretical) homopolymers.<br /></li><li>**mean**: frequency mean along all the sequences of the batch (sum of the number of homopolymers of size *categ* in each input sequence) / (number of sequences).<br /></li><li>**sd**: frequency standard deviation along all the sequences of the batch (sd of the corresponding  *mean*).<br /></li><li>**CI95.inf**: 95% lower Confidence Interval of the *mean*, according to the normal law(*mean*, *sd*).<br /></li><li>**CI95.sup**: 5% upper Confidence Interval of the *mean*, according to the normal law(*mean*, *sd*).<br /></ul><li>**plot_raw_values.tsv**<br />Column description: <br /><ul><li>From *homopol_obs_distrib* and *homopol_theo_distrib* columns of the homopol_summary.tsv file. <br /></li><li>Each line is a proportion of one polymer length in one sequence. The total nomber of rows should be: number of different homopolymer lengths x number of sequences x number of kind.<br /></li><li>**prop**: proportion of one polymer length in one sequence.<br /></li><li>**length**: homopolymer length.<br /></li><li>**gene_name**: name of the sequence.<br /></li><li>**kind**: observed or random (theoretical) homopolymers.<br /></ul><li>**t_test.tsv**<br />Column description: <br /><ul><li>The t test table displayed in the report.html file.<br /></li><li>**length**: homopolymer length.<br /></li><li>**obs.mean**: mean of the observed homopolymers in the batch of sequences.<br /></li><li>**theo.mean**: mean of the random homopolymers.<br /></li><li>**obs.sd**: standard deviation of the observed homopolymers in the batch of sequences.<br /></li><li>**theo.sd**: standard deviation of the random homopolymers.<br /></li><li>**df**: degree of freedom of the t test.<br /></li><li>**t**: t test statistics.<br /></li><li>**p.value**: p value.<br /></li><li>**BH.adj.p.value**: Benjamini Hochberg adjusted p values along all the t tests performed.<br /></ul><li>**graph_stat.RData**<br />.RData file containing all the objects used to make the report.html, that can be reused if necessary. |
 
 <br /><br />
 ## VERSIONS
@@ -333,12 +247,13 @@ Not yet published
 
 The developers & maintainers of the mentioned softwares and packages, including:
 
-- [cyvcf2](https://brentp.github.io/cyvcf2/docstrings.html)
 - [R](https://www.r-project.org/)
 - [ggplot2](https://ggplot2.tidyverse.org/)
 - [Nextflow](https://www.nextflow.io/)
 - [Apptainer](https://apptainer.org/)
 - [Docker](https://www.docker.com/)
+- [Git](https://git-scm.com/)
+- [Github](https://github.com/)
 - [Gitlab](https://about.gitlab.com/)
 - [Bash](https://www.gnu.org/software/bash/)
 - [Ubuntu](https://ubuntu.com/)
