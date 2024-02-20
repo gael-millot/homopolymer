@@ -208,7 +208,7 @@ chmod 755 bin/*.*
 
 An example of results is present at this address: [https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip](https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip).
 
-| homopolymer_\<HOMOPOLYMER_MIN_LENGTH\>_\<UNIQUE_ID\> folder | Description |
+| homopolymer_<br />\<HOMOPOLYMER_MIN_LENGTH\><br />_\<UNIQUE_ID\><br />folder | Description |
 | --- | --- |
 | **report.html** | Report of the analysis. |
 | **reports** | Folder containing all the reports of the different processes, including the *nextflow.config* file used. |
