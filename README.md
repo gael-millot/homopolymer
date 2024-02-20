@@ -77,11 +77,11 @@ Installation of:<br />
 [Graphviz](https://www.graphviz.org/download/), `sudo apt install graphviz` for Linux ubuntu<br />
 [Apptainer](https://github.com/apptainer/apptainer)<br />
 
-<br />
+
 ### 2. Local running (personal computer)
 
 
-#### 2.1. *main.nf* file in the personal computer
+####	2.1. *main.nf* file in the personal computer
 
 - Mount a server if required:
 
@@ -105,8 +105,8 @@ nextflow run main.nf -c nextflow.config
 
 with -c to specify the name of the config file used.
 
-<br />
-#### 2.3. *main.nf* file in the public git repository
+
+#### 2.2.	*main.nf* file in the public git repository
 
 Run the following command from where you want the results:
 
@@ -115,10 +115,10 @@ nextflow run gael-millot/homopolymer # github, or nextflow run http://github.com
 nextflow run -hub pasteur gmillot/homopolymer -r v1.0.0 # gitlab
 ```
 
-<br />
+
 ### 3. Distant running (example with the Pasteur cluster)
 
-#### 3.1. Pre-execution
+####	3.1. Pre-execution
 
 Copy-paste this after having modified the EXEC_PATH variable:
 
@@ -141,8 +141,8 @@ chmod 755 ${EXEC_PATH}/bin/*.*
 module load ${JAVA_CONF} ${APP_CONF} ${GIT_CONF} ${GRAPHVIZ_CONF}
 ```
 
-<br />
-#### 3.2. *main.nf* file in a cluster folder
+
+####	3.2. *main.nf* file in a cluster folder
 
 Modify the second line of the code below, and run from where the *main.nf* and *nextflow.config* files are (which has been set thanks to the EXEC_PATH variable above):
 
@@ -155,8 +155,8 @@ HOME=$HOME_INI
 trap SIGINT
 ```
 
-<br />
-#### 3.3. *main.nf* file in the public git repository
+
+####	3.3. *main.nf* file in the public git repository
 
 Modify the first and third lines of the code below, and run (results will be where the EXEC_PATH variable has been set above):
 
@@ -171,10 +171,10 @@ HOME=$HOME_INI
 trap SIGINT
 ```
 
-<br />
+
 ### 4. Error messages and solutions
 
-#### Message 1
+####	Message 1
 <pre>
 Unknown error accessing project `gmillot/homopolymer` -- Repository may be corrupted: /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot/homopolymer
 </pre>
@@ -184,14 +184,14 @@ Purge using:
 rm -rf /pasteur/sonic/homes/gmillot/.nextflow/assets/gmillot*
 ```
 
-#### Message 2
+####	Message 2
 <pre>
 WARN: Cannot read project manifest -- Cause: Remote resource not found: https://gitlab.pasteur.fr/api/v4/projects/gmillot%2Fhomopolymer
 </pre>
 
 Contact Gael Millot (distant repository is not public).
 
-#### Message 3
+####	Message 3
 <pre>
 permission denied
 </pre>
