@@ -346,7 +346,7 @@ workflow {
 
     //////// Channels
 
-    vcf_ch = Channel.fromPath(sample_path) 
+    fasta_ch = Channel.fromPath(sample_path) 
 
     //////// end Channels
 
@@ -370,9 +370,9 @@ workflow {
 
     initial()
 
-    // vcf_ch.splitFasta(record:[header: true, seqString: true]).view()
+    // fasta_ch.splitFasta(record:[header: true, seqString: true]).view()
     homopolymer(
-        vcf_ch.splitFasta(record:[header: true, seqString: true]), // parallel
+        fasta_ch.splitFasta(record:[header: true, seqString: true]), // parallel
         min_length
     )
     // splitFasta(record:[header: true, seqString: true]) split a fasta files in records (one per sequence), each record with two items: the first is the header and the second the seq string
