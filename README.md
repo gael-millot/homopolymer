@@ -59,9 +59,19 @@ With the input sequence **ATTTAAGCGGG**, the homopolymers are:
 <br /><br />
 ## INPUT
 
-A fasta file.
+| Required files |
+| --- |
+| A fasta file. |
 
-The dataset used in the nextflow.config file, as example, is available at [https://zenodo.org/records/10681460/files/test.fasta](https://zenodo.org/records/10681460/files/test.fasta).
+<br />
+
+The dataset used in the *nextflow.config* file, as example, is available at https://zenodo.org/records/10681460.
+
+<br />
+
+| File name | Description |
+| --- | --- |
+| **test.fasta** | Fasta file . Available [here](https://zenodo.org/records/10681460/files/test.fasta). |
 
 
 <br /><br />
@@ -203,7 +213,7 @@ chmod 755 bin/*.*
 ## OUTPUT
 
 
-An example of results is present at this address: [https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip](https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip).
+An example of results is present at this address: https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip.
 
 | homopolymer_<br />\<HOMOPOLYMER_MIN_LENGTH\>_<br />\<UNIQUE_ID\><br />folder | Description |
 | --- | --- |
