@@ -270,6 +270,11 @@ Special acknowledgement to [Yoann Dufresne](https://github.com/yoann-dufresne), 
 <br /><br />
 ## WHAT'S NEW IN
 
+### 5.4
+
+- In the nextflow.config file, upgrade singularity -> apptainer (real one).
+
+
 ### 5.3
 
 - In the nextflow.config file, upgrade singularity -> apptainer.

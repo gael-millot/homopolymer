@@ -199,3 +199,5 @@
 2024-02-20 00:38:34	49s	naughty_turing	ERR	547badd123f5f8faa37abff614ba8cb2	98c7964f-de00-41c3-9755-91832c76bf06	nextflow run main.nf -resume
 2024-02-20 00:39:53	1m 25s	boring_descartes	OK	b75c2343675067107bed95c82e879af9	98c7964f-de00-41c3-9755-91832c76bf06	nextflow run main.nf -resume
 2024-02-20 00:42:01	1m 2s	golden_sanger	OK	099ca607f44f5c66cc88d3883c002bf3	98c7964f-de00-41c3-9755-91832c76bf06	nextflow run main.nf -resume
+2024-02-29 10:10:47	43.4s	nice_perlman	ERR	5d2b3842fca07fe8623640fb888330bc	5007c731-17cf-454e-8b19-bf7354dac8b8	nextflow run main.nf
+2024-02-29 10:12:17	1m 59s	jolly_crick	ERR	5d2b3842fca07fe8623640fb888330bc	ac9938ce-844a-48cc-81f2-59b19a9e16b3	nextflow run main.nf
