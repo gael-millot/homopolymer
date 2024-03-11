@@ -50,10 +50,11 @@ With the input sequence **ATTTAAGCGGG**, the homopolymers are:
 <br /><br />
 ## CONTENT
 
-| File | Description |
+| Files and folder | Description |
 | --- | --- |
 | **main.nf** | File that can be executed using a linux terminal, a MacOS terminal or Windows 10 WSL2. |
 | **nextflow.config** | Parameter settings for the *main.nf* file. Users have to open this file, set the desired settings and save these modifications before execution. |
+| **bin folder** | Contains files required by the *main.nf* file. |
 
 
 <br /><br />
