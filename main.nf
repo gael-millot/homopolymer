@@ -310,7 +310,17 @@ workflow {
 
 
     //////// Checks
-
+    //// check of the bin folder
+    if( ! (file("${projectDir}/bin/graph_stat.R").exists()) ){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nTHE graph_stat.R FILE MUST BE PRESENT IN THE ./bin FOLDER, WHERE THE main.nf file IS PRESENT\nIF POINTING TO A DISTANT SERVER, CHECK THAT IT IS MOUNTED\n\n========\n\n"
+    }
+    if( ! (file("${projectDir}/bin/homopolymer.py").exists()) ){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nTHE homopolymer.py FILE MUST BE PRESENT IN THE ./bin FOLDER, WHERE THE main.nf file IS PRESENT\nIF POINTING TO A DISTANT SERVER, CHECK THAT IT IS MOUNTED\n\n========\n\n"
+    }
+    if( ! (file("${projectDir}/bin/print_report.R").exists()) ){
+        error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nTHE print_report.R FILE MUST BE PRESENT IN THE ./bin FOLDER, WHERE THE main.nf file IS PRESENT\nIF POINTING TO A DISTANT SERVER, CHECK THAT IT IS MOUNTED\n\n========\n\n"
+    }
+    //// end check of the bin folder
     if( ! (sample_path.class == String) ){
         error "\n\n========\n\nERROR IN NEXTFLOW EXECUTION\n\nINVALID sample_path PARAMETER IN repertoire_profiler.config FILE:\n${sample_path}\nMUST BE A SINGLE CHARACTER STRING\n\n========\n\n"
     }else if( ! (file(sample_path).exists()) ){
