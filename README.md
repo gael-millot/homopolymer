@@ -1,5 +1,5 @@
 | Usage | Requirement |
-| --- | --- |
+| :--- | :--- |
 | [![Nextflow](https://img.shields.io/badge/code-Nextflow-blue?style=plastic)](https://www.nextflow.io/) | [![Dependencies: Nextflow Version](https://img.shields.io/badge/Nextflow-v23.04.4.5881-blue?style=plastic)](https://github.com/nextflow-io/nextflow) |
 | [![License: GPL-3.0](https://img.shields.io/badge/licence-GPL%20(%3E%3D3)-green?style=plastic)](https://www.gnu.org/licenses) | [![Dependencies: Apptainer Version](https://img.shields.io/badge/Apptainer-v1.2.3-blue?style=plastic)](https://github.com/apptainer/apptainer) |
 | | [![Dependencies: Graphviz Version](https://img.shields.io/badge/Graphviz-v2.42.2-blue?style=plastic)](https://www.graphviz.org/download/) |
@@ -49,9 +49,9 @@ With the input sequence **ATTTAAGCGGG**, the homopolymers are:
 
 <br /><br />
 ## CONTENT
-
+<br />
 | Files and folder | Description |
-| --- | --- |
+| :--- | :--- |
 | **main.nf** | File that can be executed using a linux terminal, a MacOS terminal or Windows 10 WSL2. |
 | **nextflow.config** | Parameter settings for the *main.nf* file. Users have to open this file, set the desired settings and save these modifications before execution. |
 | **bin folder** | Contains files required by the *main.nf* file. |
@@ -59,9 +59,9 @@ With the input sequence **ATTTAAGCGGG**, the homopolymers are:
 
 <br /><br />
 ## INPUT
-
+<br />
 | Required files |
-| --- |
+| :--- |
 | A fasta file. |
 
 <br />
@@ -71,7 +71,7 @@ The dataset used in the *nextflow.config* file, as example, is available at http
 <br />
 
 | File name | Description |
-| --- | --- |
+| :--- | :--- |
 | **test.fasta** | Fasta file . Available [here](https://zenodo.org/records/10681460/files/test.fasta). |
 
 
@@ -217,7 +217,7 @@ chmod 755 bin/*.*
 An example of results is present at this address: https://zenodo.org/records/10681595/files/homopolymer_2_1708386120.zip.
 
 | homopolymer_<br />\<HOMOPOLYMER_MIN_LENGTH\>_<br />\<UNIQUE_ID\><br />folder | Description |
-| --- | --- |
+| :--- | :--- |
 | **report.html** | Report of the analysis. |
 | **reports** | Folder containing all the reports of the different processes, including the *nextflow.config* file used. |
 | **figures** | Folder containing the graphs in png format that are used in the *report.html* file, as well as the corresponding svg vectorial files if needed. |
@@ -241,7 +241,7 @@ See the GNU General Public License for more details at https://www.gnu.org/licen
 ## CITATION
 
 
-Not yet published
+Not yet published.
 
 <br /><br />
 ## CREDITS
